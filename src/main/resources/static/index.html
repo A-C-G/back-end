@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    /* 컨테이너를 화면 가운데 정렬하기 위한 스타일 */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* 버튼 스타일 */
+    .custom-button {
+      display: inline-block;
+      padding: 20px 40px; /* 버튼 크기 조절 */
+      background-color: #007BFF; /* 배경 색상 */
+      color: #fff; /* 글자 색상 */
+      border: none;
+      border-radius: 10px; /* 네모난 모양을 위한 둥근 모서리 */
+      text-align: center;
+      text-decoration: none;
+      font-size: 24px; /* 글자 크기 조절 */
+      cursor: pointer;
+      transition: background-color 0.3s ease; /* 마우스 호버 효과 */
+    }
+
+    /* 버튼 호버 효과 */
+    .custom-button:hover {
+      background-color: #0056b3; /* 호버 시 배경 색상 변경 */
+    }
+  </style>
+</head>
+<body>
+<a href="http://localhost:8080/login" class="custom-button">Github Login</a>
+</body>
+</html>
