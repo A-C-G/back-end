@@ -54,7 +54,11 @@ public class GithubApiController {
   }
 
   @GetMapping("/oauth2/authorization/github")
-  public String getCode(@RequestParam String code, RedirectAttributes redirectAttributes) throws IOException {
+  public String getCode(@RequestParam String code, @RequestParam(required = false) String error, RedirectAttributes redirectAttributes) throws IOException {
+    if ("access_denied".equals(error)) {
+      System.out.println("승인을 취소하셨습니다.");
+      return "redirect:/login";
+    }
 
     URL url = new URL("https://github.com/login/oauth/access_token");
 
@@ -129,11 +133,5 @@ public class GithubApiController {
       }
     }
     return sb.toString();
-  }
-
-  @GetMapping("/oauth2/authorization/github?error=access_denied")
-  public String accessDenied() {
-    System.out.println("승인을 취소하셨습니다.");
-    return "redirect:/index";
   }
 }
