@@ -1,7 +1,11 @@
 package com.project.ACG.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.ACG.entity.User;
+import com.project.ACG.repository.UserJpaRepository;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -18,6 +22,7 @@ import java.net.URL;
 import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class GithubApiController {
 
   @Value("${spring.security.oauth2.client.registration.github.client-id}")
@@ -25,6 +30,8 @@ public class GithubApiController {
 
   @Value("${spring.security.oauth2.client.registration.github.client-secret}")
   private String client_secret;
+
+  private final UserJpaRepository userJpaRepository;
 
   @GetMapping("/success")
   public String success(HttpServletRequest request, Model model) throws JsonProcessingException {
@@ -73,6 +80,7 @@ public class GithubApiController {
     return "redirect:/success";
   }
 
+  @Transactional
   public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -92,6 +100,21 @@ public class GithubApiController {
 
     conn.disconnect();
 
+    try {
+      JsonNode jsonNode = objectMapper.readTree(result);
+
+      String login = jsonNode.get("login").asText();
+      String name = jsonNode.get("name").asText();
+
+      if(userJpaRepository.existsUserByUserIdAndUserName(login, name)){
+        System.out.println("이미 로그인 정보가 있습니다.");
+      } else {
+        User newUser = User.create(login, name, access_token);
+        userJpaRepository.save(newUser);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     redirectAttributes.addFlashAttribute("result", result);
   }
 
@@ -106,5 +129,11 @@ public class GithubApiController {
       }
     }
     return sb.toString();
+  }
+
+  @GetMapping("/oauth2/authorization/github?error=access_denied")
+  public String accessDenied() {
+    System.out.println("승인을 취소하셨습니다.");
+    return "redirect:/index";
   }
 }
