@@ -29,10 +29,14 @@ public class User {
   @Column(name = "user_token")
   private String userToken;
 
+  @Column(name = "status")
+  private boolean status;
+
   public User(String userId, String userName, String userToken) {
     this.userId = userId;
     this.userName = userName;
     this.userToken = userToken;
+    this.status = true;
   }
 
   public static User create(String userId, String userName, String userToken) {
@@ -43,4 +47,11 @@ public class User {
     this.userToken = userToken;
   }
 
+  public void deleteUser() {
+    this.status = false;
+  }
+
+  public void returnUser() {
+    this.status = true;
+  }
 }
