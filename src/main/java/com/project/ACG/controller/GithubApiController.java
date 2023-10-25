@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.ACG.entity.User;
 import com.project.ACG.repository.UserJpaRepository;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,7 +112,10 @@ public class GithubApiController {
       String name = jsonNode.get("name").asText();
 
       if(userJpaRepository.existsUserByUserIdAndUserName(login, name)){
-        System.out.println("이미 로그인 정보가 있습니다.");
+        Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(login, name);
+        User existUser = user.get();
+        existUser.updateToken(access_token);
+        userJpaRepository.save(existUser);
       } else {
         User newUser = User.create(login, name, access_token);
         userJpaRepository.save(newUser);
