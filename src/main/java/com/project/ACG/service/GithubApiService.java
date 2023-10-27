@@ -37,6 +37,7 @@ public class GithubApiService {
 
   private final UserJpaRepository userJpaRepository;
 
+  // 엑세스 토큰을 받아오는 로직
   public void getAccessToken(String code, RedirectAttributes redirectAttributes) throws IOException {
     URL url = new URL("https://github.com/login/oauth/access_token");
 
@@ -61,6 +62,7 @@ public class GithubApiService {
     access(responseData, redirectAttributes);
   }
 
+  // 엑세스 토큰으로 User 객체를 생성하는 로직
   public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -80,6 +82,7 @@ public class GithubApiService {
 
     conn.disconnect();
 
+    // 정보를 받아와서 필요한 정보만 파싱 후 User객체 생성
     try {
       JsonNode jsonNode = objectMapper.readTree(result);
 
@@ -113,6 +116,7 @@ public class GithubApiService {
     redirectAttributes.addFlashAttribute("result", result);
   }
 
+  // 200 요청이 왔을때, 데이터를 문자열화
   private String getResponse(HttpURLConnection conn, int responseCode) throws IOException {
     StringBuilder sb = new StringBuilder();
     if (responseCode == 200) {

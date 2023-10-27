@@ -22,8 +22,8 @@ public class UserController {
   }
 
   @PostMapping("/user")
-  public String deleteUser(@RequestParam String login, @RequestParam String name) {
-    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(login, name);
+  public String deleteUser(@RequestParam String userId, @RequestParam String userName) {
+    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(userId, userName);
     User targetUser = user.get();
     if (targetUser.isStatus()) {
       targetUser.deleteUser();

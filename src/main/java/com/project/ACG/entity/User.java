@@ -29,6 +29,9 @@ public class User {
   @Column(name = "user_token")
   private String userToken;
 
+  @Column(name = "user_repo")
+  private String userRepo;
+
   @Column(name = "status")
   private boolean status;
 
@@ -36,6 +39,7 @@ public class User {
     this.userId = userId;
     this.userName = userName;
     this.userToken = userToken;
+    this.userRepo = null;
     this.status = true;
   }
 
@@ -53,5 +57,9 @@ public class User {
 
   public void returnUser() {
     this.status = true;
+  }
+
+  public void registerRepo(String userRepo) {
+    this.userRepo = userRepo;
   }
 }
