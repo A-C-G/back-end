@@ -23,8 +23,13 @@ public class UserController {
 
   @PostMapping("/user")
   public String deleteUser(@RequestParam String userId, @RequestParam String userName) {
-    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(userId, userName);
+    String targetUserId = userId.split(",")[0].trim();
+    String targetUserName = userName.split(",")[0].trim();
+    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(targetUserId, targetUserName);
     User targetUser = user.get();
+    if (targetUser == null) {
+      return "존재하지 않는 유저입니다.";
+    }
     if (targetUser.isStatus()) {
       targetUser.deleteUser();
       userJpaRepository.save(targetUser);

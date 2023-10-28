@@ -43,7 +43,7 @@
 <body>
 <div class="container">
   <h2>Identification</h2>
-  <form id="withdrawForm" method="post" onsubmit="return confirm('Are you sure you want to withdraw?');">
+  <form id="withdrawForm" method="post" onsubmit="return false;">
     <div>
       <label for="userId">ID:</label>
       <input type="text" id="userId" name="userId" pattern="[a-zA-Z0-9]+" required>
@@ -52,19 +52,38 @@
       <label for="userName">Name:</label>
       <input type="text" id="userName" name="userName" pattern="[a-zA-Z가-힣]+" required>
     </div>
-    <button type="submit">submit</button>
+    <button type="button" id="submitButton">submit</button>
   </form>
 </div>
 <script>
-  document.getElementById('withdrawForm').addEventListener('submit', function (event) {
-    event.preventDefault(); // 폼 제출을 중지
+  document.getElementById('submitButton').addEventListener('click', function () {
     var userId = document.getElementById('userId').value;
     var userName = document.getElementById('userName').value;
-    // 사용자가 입력한 userId와 userName을 가져옴
-    if (confirm('Are you sure you want to withdraw?')) {
-      this.action = '/user?userId=' + userId + '&userName=' + userName;
-      // 폼의 action 속성을 업데이트
-      this.submit(); // 폼 다시 제출
+
+    if (userId && userName) {
+      if (confirm('Are you sure you want to withdraw?')) {
+        this.disabled = true; // 비활성화하여 중복 클릭 방지
+        this.innerText = 'Submitting...';
+        this.style.cursor = 'not-allowed';
+
+        // AJAX 요청을 사용하여 서버에 데이터를 보냄
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/user?userId=' + userId + '&userName=' + userName, true);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              alert(xhr.responseText); // 서버로부터의 응답을 알림창에 표시
+              window.location.href = 'http://localhost:8080'; // 페이지 리로드
+            } else {
+              alert('Error: Please check again'); // 오류 메시지 표시
+            }
+          }
+        };
+        xhr.send();
+      }
+    } else {
+      alert('Please fill in both ID and Name fields.');
     }
   });
 </script>

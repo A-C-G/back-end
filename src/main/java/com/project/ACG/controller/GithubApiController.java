@@ -36,4 +36,14 @@ public class GithubApiController {
     return "redirect:/success";
   }
 
+  @GetMapping("/setting")
+  public String setting() {
+    return "setting";
+  }
+
+  @GetMapping("/withdraw")
+  public String withdraw() {
+    return "withdraw";
+  }
+
 }
