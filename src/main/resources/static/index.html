@@ -7,10 +7,19 @@
     /* 컨테이너를 화면 가운데 정렬하기 위한 스타일 */
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
+    }
+
+    /* 문구 스타일 */
+    .welcome-text {
+      text-align: center;
+      font-size: 24px; /* 글자 크기 조절 */
+      margin-bottom: 20px; /* 아래 여백 추가 */
+      margin-top: -20px; /* 위로 조금 이동 */
     }
 
     /* 버튼 스타일 */
@@ -35,6 +44,10 @@
   </style>
 </head>
 <body>
+<div class="welcome-text">
+  <p>안녕하세요, ACG입니다.</p>
+  <p>ACG를 이용하시려면 로그인을 진행해주세요.</p>
+</div>
 <a href="http://localhost:8080/login" class="custom-button">Github Login</a>
 </body>
 </html>

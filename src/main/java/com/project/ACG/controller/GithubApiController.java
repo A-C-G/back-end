@@ -20,9 +20,15 @@ public class GithubApiController {
 
   @GetMapping("/success")
   public String success(HttpServletRequest request, Model model) throws JsonProcessingException {
-    githubApiService.success(request, model);
+    try {
+      githubApiService.success(request, model);
+    } catch (IllegalArgumentException e) {
+      return "redirect:/";
+    }
+
     return "success";
   }
+
 
   @GetMapping("/oauth2/authorization/github")
   public String getCode(@RequestParam String code, @RequestParam(required = false) String error, RedirectAttributes redirectAttributes)

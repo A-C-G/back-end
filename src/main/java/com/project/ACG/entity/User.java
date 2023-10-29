@@ -40,7 +40,7 @@ public class User {
     this.userName = userName;
     this.userToken = userToken;
     this.userRepo = null;
-    this.status = true;
+    this.status = false;
   }
 
   public static User create(String userId, String userName, String userToken) {
@@ -61,5 +61,6 @@ public class User {
 
   public void registerRepo(String userRepo) {
     this.userRepo = userRepo;
+    this.status = true;
   }
 }
