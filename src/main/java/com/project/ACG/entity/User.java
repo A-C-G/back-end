@@ -1,5 +1,7 @@
 package com.project.ACG.entity;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,12 +37,16 @@ public class User {
   @Column(name = "status")
   private boolean status;
 
+  @Column(name = "update_time")
+  private String updateTime;
+
   public User(String userId, String userName, String userToken) {
     this.userId = userId;
     this.userName = userName;
     this.userToken = userToken;
     this.userRepo = null;
     this.status = false;
+    this.updateTime = null;
   }
 
   public static User create(String userId, String userName, String userToken) {
@@ -62,5 +68,9 @@ public class User {
   public void registerRepo(String userRepo) {
     this.userRepo = userRepo;
     this.status = true;
+  }
+
+  public void updateAt(String dateTime) {
+    this.updateTime = dateTime;
   }
 }

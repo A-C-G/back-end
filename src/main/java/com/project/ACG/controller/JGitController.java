@@ -14,8 +14,8 @@ public class JGitController {
   private final JGitService jGitService;
 
   @PostMapping("/setting")
-  public String createRepo(@RequestParam String userId, @RequestParam String userName)
+  public String createRepo(@RequestParam String userId, @RequestParam String userName, @RequestParam String repoName)
       throws JsonProcessingException {
-    return jGitService.createRepo(userId, userName);
+    return jGitService.createRepo(userId, userName, repoName);
   }
 }
