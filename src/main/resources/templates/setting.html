@@ -68,7 +68,7 @@
 
     // 정규 표현식을 사용하여 각 필드의 형식을 검증
     var userIdPattern = /^[a-zA-Z0-9]+$/;
-    var userNamePattern = /^[a-zA-Z가-힣]+$/;
+    var userNamePattern = /^[a-zA-Z가-힣\s]+$/;
     var repoNamePattern = /^[A-Za-z0-9.\-_]+$/;
 
     if (userId && userName && repoName) {
