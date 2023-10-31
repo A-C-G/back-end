@@ -14,6 +14,7 @@ public class SecurityConfig {
     http.oauth2Login()
         .authorizationEndpoint()
         .baseUri("/login");
+    http.csrf().disable();
     return http.build();
   }
 }
