@@ -25,7 +25,7 @@ jobs:
     
     # Docker 이미지 Build (2)
     - name: docker image build
-      run: docker build -t lucaskang134/boot-prac-ci .
+      run: docker build -t hyuntae99/boot-prac-ci .
     
     # DockerHub Login (3)
     - name: docker login 
@@ -36,7 +36,7 @@ jobs:
 
     # Docker Hub push (4)
     - name: docker Hub push
-      run: docker push lucaskang134/boot-prac-ci
+      run: docker push hyuntae99/boot-prac-ci
       
     # GET GitHub IP (5)
     - name: get GitHub IP 
@@ -68,7 +68,7 @@ jobs:
         script: |
           sudo docker stop boot-prac-ci
           sudo docker rm boot-prac-ci
-          sudo docker run -it -d -p 8080:8080 --name boot-prac-ci lucaskang134/boot-prac-ci
+          sudo docker run -it -d -p 8080:8080 --name boot-prac-ci hyuntae99/boot-prac-ci
     
     # REMOVE GitHub IP FROM security group (9)
     - name: Remove IP FROM security group
