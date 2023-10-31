@@ -26,9 +26,9 @@ import java.util.concurrent.Executors;
 public class GitHubCommitService {
 
   private final UserJpaRepository userJpaRepository;
-  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+  private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 10개 thread 사용
 
-  @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // 6시간마다 실행 (밀리초 단위)
+  @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12시간마다 실행 (밀리초 단위)
   public void executeCommits() {
     List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
     for (User user : userList) {
@@ -45,7 +45,7 @@ public class GitHubCommitService {
   }
 
   public String commitToGitHubRepositoryByAllUsers(User user) {
-    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId();
+    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 

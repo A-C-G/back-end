@@ -79,7 +79,7 @@ public class JGitService {
 
   private String commitToGitHubRepository(User user, String repoName, String accessToken, String commitMessage)
       throws IOException {
-    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId(); // 로컬 저장소 경로 설정
+    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 

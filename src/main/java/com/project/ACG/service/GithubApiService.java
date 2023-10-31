@@ -101,7 +101,6 @@ public class GithubApiService {
         // 휴면 계정인 경우
         else {
           existUser.updateToken(access_token);
-          existUser.returnUser();
           userJpaRepository.save(existUser);
         }
       }
