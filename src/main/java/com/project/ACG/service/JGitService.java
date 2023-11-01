@@ -34,6 +34,13 @@ public class JGitService {
     User existUser = user.get();
     String accessToken = existUser.getUserToken();
 
+    String localRepoPath = "/var/" + existUser.getUserId() + "/samples";
+    File localRepoDirectory = new File(localRepoPath);
+
+    if (localRepoDirectory.exists()) {
+      return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
+    }
+
     try {
       GitHub github = GitHub.connectUsingOAuth(accessToken);
       GHCreateRepositoryBuilder builder = github.createRepository(repoName)
@@ -41,7 +48,7 @@ public class JGitService {
           .description("ACG Repository");
       GHRepository repository = builder.create();
 
-      String IsSuccess = commitToGitHubRepository(existUser, repoName, accessToken, "initial commit");
+      String IsSuccess = commitToGitHubRepository(existUser, repoName, accessToken, "initial commit", localRepoPath, localRepoDirectory);
 
       if (IsSuccess.equals("success")) {
         existUser.registerRepo(repoName);
@@ -77,17 +84,11 @@ public class JGitService {
     }
   }
 
-  private String commitToGitHubRepository(User user, String repoName, String accessToken, String commitMessage)
+  private String commitToGitHubRepository(User user, String repoName, String accessToken, String commitMessage, String localRepoPath, File localRepoDirectory)
       throws IOException {
-    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId() + "/samples";
-    File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
     try {
-      if (localRepoDirectory.exists()) {
-        return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
-      }
-
       // GitHub 리포지토리를 로컬로 클론
       CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(accessToken, "");
       git = Git.cloneRepository()
@@ -101,7 +102,7 @@ public class JGitService {
       headers.setContentType(MediaType.parseMediaType("text/csv"));
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
       String currentDateTime = LocalDateTime.now().format(formatter);
-      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + ".txt");
+      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + "_UTC.txt");
       fileToCommit.createNewFile();
       git.add()
           .addFilepattern(".")
@@ -114,7 +115,8 @@ public class JGitService {
       git.push()
           .setCredentialsProvider(credentialsProvider)
           .call();
-
+      user.updateAt(currentDateTime);
+      userJpaRepository.save(user);
       return "success";
     } catch (GitAPIException e) {
       // GitAPIException 예외 발생 시 오류 메시지 반환
@@ -122,7 +124,6 @@ public class JGitService {
     } catch (JGitInternalException ex) {
       return ex.getMessage();
     } finally {
-
     }
   }
 }

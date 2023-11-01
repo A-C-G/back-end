@@ -101,16 +101,9 @@ public class GithubApiService {
       if(userJpaRepository.existsUserByUserIdAndUserEmail(login, email)){
         Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
         User existUser = user.get();
-        // 활동 회원인 경우
-        if (existUser.isStatus()) {
-          existUser.updateToken(access_token);
-          userJpaRepository.save(existUser);
-        }
-        // 휴면 계정인 경우
-        else {
-          existUser.updateToken(access_token);
-          userJpaRepository.save(existUser);
-        }
+
+        existUser.updateToken(access_token);
+        userJpaRepository.save(existUser);
       }
       // 처음 회원가입하는 경우
       else {

@@ -28,7 +28,7 @@ public class GitHubCommitService {
   private final UserJpaRepository userJpaRepository;
   private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 10개 thread 사용
 
-  @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12시간마다 실행 (밀리초 단위)
+  @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // 6시간마다 실행 (밀리초 단위)
   public void executeCommits() {
     List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
     for (User user : userList) {
@@ -45,47 +45,48 @@ public class GitHubCommitService {
   }
 
   public String commitToGitHubRepositoryByAllUsers(User user) {
-    String localRepoPath = "C:/ACG/ACG/users/" + user.getUserId() + "/samples";
+    String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
-    try {
-      if (!localRepoDirectory.exists()) {
-        return "서비스를 이용 중이 아닙니다.";
+    if (!localRepoDirectory.exists()) {
+      return "서비스를 이용 중이 아닙니다.";
+    } else {
+      try {
+        // GitHub 레포지토리 접속
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
+            user.getUserToken(), "");
+        git = Git.open(localRepoDirectory);
+
+        // 변경사항을 만들고 초기 커밋
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String currentDateTime = LocalDateTime.now().format(formatter);
+        File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + "_UTC.txt");
+        fileToCommit.createNewFile();
+        git.add()
+            .addFilepattern(".")
+            .call();
+        git.commit()
+            .setMessage("Auto Commit at " + currentDateTime)
+            .call();
+
+        // 변경사항을 GitHub 리포지토리로 푸시
+        git.push()
+            .setCredentialsProvider(credentialsProvider)
+            .call();
+
+        user.updateAt(currentDateTime);
+        userJpaRepository.save(user);
+        return "success";
+      } catch (GitAPIException | IOException | JGitInternalException e) {
+        // 예외 처리
+        e.printStackTrace();
+        return e.getMessage();
+      } finally {
+
       }
-
-      // GitHub 레포지토리 접속
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(user.getUserToken(), "");
-      git = Git.open(localRepoDirectory);
-
-      // 변경사항을 만들고 초기 커밋
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.parseMediaType("text/csv"));
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-      String currentDateTime = LocalDateTime.now().format(formatter);
-      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + ".txt");
-      fileToCommit.createNewFile();
-      git.add()
-          .addFilepattern(".")
-          .call();
-      git.commit()
-          .setMessage("Auto Commit at " + currentDateTime)
-          .call();
-
-      // 변경사항을 GitHub 리포지토리로 푸시
-      git.push()
-          .setCredentialsProvider(credentialsProvider)
-          .call();
-
-      user.updateAt(currentDateTime);
-      userJpaRepository.save(user);
-      return "success";
-    } catch (GitAPIException | IOException | JGitInternalException e) {
-      // 예외 처리
-      e.printStackTrace();
-      return e.getMessage();
-    } finally {
-
     }
   }
 }

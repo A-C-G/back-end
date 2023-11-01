@@ -34,7 +34,7 @@ public class UserService {
       userJpaRepository.save(targetUser);
 
       // 유저 삭제 후 해당 디렉토리 및 파일 삭제
-      String directoryPath = "C:/ACG/ACG/users/" + userId;
+      String directoryPath = "/var/" + userId;
       File directory = new File(directoryPath);
 
       if (directory.exists()) {
@@ -64,7 +64,7 @@ public class UserService {
     StringBuilder csvData = new StringBuilder();
 
     // CSV 헤더 행 생성
-    csvData.append("ID,user_ID,user_Name,user_Token,user_Repo,status\n");
+    csvData.append("ID,user_ID,user_Name, user_Email, user_Token,user_Repo,status\n");
 
     // 사용자 목록을 가져오고 CSV 데이터를 추가
     List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
@@ -72,6 +72,7 @@ public class UserService {
       csvData.append(user.getId()).append(",")
           .append(user.getUserId()).append(",")
           .append(user.getUserName()).append(",")
+          .append(user.getUserEmail()).append(",")
           .append(user.getUserToken()).append(",")
           .append(user.getUserRepo()).append(",")
           .append(user.isStatus()).append("\n");
