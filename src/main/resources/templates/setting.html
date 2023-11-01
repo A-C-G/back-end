@@ -50,8 +50,8 @@
       <input type="text" id="userId" name="userId" pattern="[a-zA-Z0-9]+" required>
     </div>
     <div>
-      <label for="userName">Name:</label>
-      <input type="text" id="userName" name="userName" pattern="[a-zA-Z가-힣]+" required>
+      <label for="userEmail">Email:</label>
+      <input type="text" id="userEmail" name="userEmail" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
     </div>
     <div>
       <label for="repoName">repoName:</label>
@@ -63,16 +63,16 @@
 <script>
   document.getElementById('submitButton').addEventListener('click', function () {
     var userId = document.getElementById('userId').value;
-    var userName = document.getElementById('userName').value;
+    var userEmail = document.getElementById('userEmail').value;
     var repoName = document.getElementById('repoName').value;
 
     // 정규 표현식을 사용하여 각 필드의 형식을 검증
     var userIdPattern = /^[a-zA-Z0-9]+$/;
-    var userNamePattern = /^[a-zA-Z가-힣\s]+$/;
+    var userEmailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     var repoNamePattern = /^[A-Za-z0-9.\-_]+$/;
 
-    if (userId && userName && repoName) {
-      if (userIdPattern.test(userId) && userNamePattern.test(userName) && repoNamePattern.test(repoName)) { // 형식 검증
+    if (userId && userEmail && repoName) {
+      if (userIdPattern.test(userId) && userEmailPattern.test(userEmail) && repoNamePattern.test(repoName)) { // 형식 검증
         if (confirm(repoName + '(이)라는 저장소가 생성됩니다.')) {
           this.disabled = true; // 비활성화하여 중복 클릭 방지
           this.innerText = '제출중...';
@@ -80,7 +80,7 @@
 
           // AJAX 요청을 사용하여 서버에 데이터를 보냄
           var xhr = new XMLHttpRequest();
-          xhr.open('POST', '/setting?userId=' + userId + '&userName=' + userName + "&repoName=" + repoName ,true);
+          xhr.open('POST', '/setting?userId=' + userId + '&userEmail=' + userEmail + "&repoName=" + repoName ,true);
           xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
           xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -95,10 +95,10 @@
           xhr.send();
         }
       } else {
-        alert('ID, 이름, 저장소 이름의 형식이 올바르지 않습니다.');
+        alert('ID, 이메일, 저장소 이름의 형식이 올바르지 않습니다.');
       }
     } else {
-      alert('ID, 이름, 저장소 이름을 모두 입력해주세요!');
+      alert('ID, 이메일, 저장소 이름을 모두 입력해주세요!');
     }
   });
 </script>

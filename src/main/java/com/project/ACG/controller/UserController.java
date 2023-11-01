@@ -32,9 +32,9 @@ public class UserController {
 
 
   @PostMapping("/user")
-  public String deleteUser(@RequestParam String userId, @RequestParam String userName) {
+  public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
     String targetUserId = userId.split(",")[0].trim();
-    String targetUserName = userName.split(",")[0].trim();
-    return userService.deleteUser(targetUserId, targetUserName);
+    String targetUserEmail = userEmail.split(",")[0].trim();
+    return userService.deleteUser(targetUserId, targetUserEmail);
   }
 }

@@ -3,6 +3,7 @@ package com.project.ACG.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.project.ACG.entity.User;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.BufferedReader;
@@ -78,7 +79,13 @@ public class GithubApiService {
 
     int responseCode = conn.getResponseCode();
 
-    String result = getResponse(conn, responseCode);
+    String results = getResponse(conn, responseCode);
+
+    String email = getEmail(response, redirectAttributes);
+
+    ObjectNode rootNode = (ObjectNode) objectMapper.readTree(results);
+    rootNode.put("Email", email);
+    String result = objectMapper.writeValueAsString(rootNode);
 
     conn.disconnect();
 
@@ -88,10 +95,11 @@ public class GithubApiService {
 
       String login = jsonNode.get("login").asText();
       String name = jsonNode.get("name").asText();
+      email = jsonNode.get("Email").asText();
 
       // 이전에 회원가입 전적이 있는 경우
-      if(userJpaRepository.existsUserByUserIdAndUserName(login, name)){
-        Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(login, name);
+      if(userJpaRepository.existsUserByUserIdAndUserEmail(login, email)){
+        Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
         User existUser = user.get();
         // 활동 회원인 경우
         if (existUser.isStatus()) {
@@ -106,7 +114,7 @@ public class GithubApiService {
       }
       // 처음 회원가입하는 경우
       else {
-        User newUser = User.create(login, name, access_token);
+        User newUser = User.create(login, name, email, access_token);
         userJpaRepository.save(newUser);
       }
     } catch (Exception e) {
@@ -141,5 +149,32 @@ public class GithubApiService {
     Map<String, String> result = objectMapper.readValue(response, Map.class);
 
     model.addAttribute("result", result);
+  }
+
+  public String getEmail(String response, RedirectAttributes redirectAttributes) throws IOException {
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, String> map = objectMapper.readValue(response, Map.class);
+    String access_token = map.get("access_token");
+
+    URL url = new URL("https://api.github.com/user/emails");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Accept", "application/json");
+    conn.setRequestProperty("User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
+    conn.setRequestProperty("Authorization", "token " + access_token);
+
+    int responseCode = conn.getResponseCode();
+
+    String result_email = getResponse(conn, responseCode);
+
+    JsonNode jsonNode = objectMapper.readTree(result_email);
+
+    String email = jsonNode.get(0).get("email").asText();
+
+    conn.disconnect();
+
+    return email;
   }
 }

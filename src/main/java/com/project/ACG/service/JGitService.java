@@ -29,8 +29,8 @@ public class JGitService {
 
   private final UserJpaRepository userJpaRepository;
 
-  public String createRepo(String userId, String userName, String repoName) throws JsonProcessingException {
-    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(userId, userName);
+  public String createRepo(String userId, String userEmail, String repoName) throws JsonProcessingException {
+    Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     User existUser = user.get();
     String accessToken = existUser.getUserToken();
 
