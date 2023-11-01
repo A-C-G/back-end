@@ -28,6 +28,9 @@ public class User {
   @Column(name = "user_name")
   private String userName;
 
+  @Column(name = "user_email")
+  private String userEmail;
+
   @Column(name = "user_token")
   private String userToken;
 
@@ -40,17 +43,18 @@ public class User {
   @Column(name = "update_time")
   private String updateTime;
 
-  public User(String userId, String userName, String userToken) {
+  public User(String userId, String userName, String userEmail, String userToken) {
     this.userId = userId;
     this.userName = userName;
+    this.userEmail = userEmail;
     this.userToken = userToken;
     this.userRepo = null;
     this.status = false;
     this.updateTime = null;
   }
 
-  public static User create(String userId, String userName, String userToken) {
-    return new User(userId, userName, userToken);
+  public static User create(String userId, String userName, String userEmail, String userToken) {
+    return new User(userId, userName, userEmail, userToken);
   }
 
   public void updateToken(String userToken) {
@@ -59,10 +63,6 @@ public class User {
 
   public void deleteUser() {
     this.status = false;
-  }
-
-  public void returnUser() {
-    this.status = true;
   }
 
   public void registerRepo(String userRepo) {

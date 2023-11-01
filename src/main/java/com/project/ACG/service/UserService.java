@@ -26,8 +26,8 @@ public class UserService {
   private final UserJpaRepository userJpaRepository;
 
   @Transactional
-  public String deleteUser(String userId, String userName) {
-    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(userId, userName);
+  public String deleteUser(String userId, String userEmail) {
+    Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     User targetUser = user.get();
     if (targetUser.isStatus()) {
       targetUser.deleteUser();
@@ -90,11 +90,11 @@ public class UserService {
     return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
   }
 
-  public UserDto userInfo(String userId, String userName) {
-    Optional<User> user = userJpaRepository.findUserByUserIdAndUserName(userId, userName);
+  public UserDto userInfo(String userId, String userEmail) {
+    Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
 
-    if (!userJpaRepository.existsUserByUserIdAndUserName(userId, userName)) {
-      return UserDto.create(false, null);
+    if (!userJpaRepository.existsUserByUserIdAndUserEmail(userId, userEmail)) {
+      return UserDto.create(false, null, null);
     }
     User targetUser = user.get();
 
@@ -108,7 +108,12 @@ public class UserService {
       updateTime = targetUser.getUpdateTime();
     }
 
-    return UserDto.create(status, updateTime);
+    String repoName = null;
+    if (targetUser.getUserRepo() != null) {
+      repoName = targetUser.getUserRepo();
+    }
+
+    return UserDto.create(status, updateTime, repoName);
   }
 }
 
