@@ -1,4 +1,5 @@
-FROM openjdk:11-jdk
-ARG JAR_FILE=builds/libs/*.jar
-COPY build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-jar", "app.jar"]
+FROM adoptopenjdk/openjdk11
+
+COPY ./build/libs/ACG-0.0.1-SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
