@@ -41,6 +41,23 @@ public class JGitService {
       return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
     }
 
+    if (existUser.getUserRepo() != null) {
+      repoName = userId + "/" + existUser.getUserRepo();
+      try {
+        GitHub github = GitHub.connectUsingOAuth(accessToken);
+        GHRepository repository = github.getRepository(repoName);
+        String IsSuccess = commitToGitHubRepository(existUser, "initial commit", localRepoPath,
+            localRepoDirectory);
+        if (IsSuccess.equals("success")) {
+          return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
+        } else {
+          return IsSuccess;
+        }
+      } catch (IOException e) {
+        return e.getMessage();
+      }
+    }
+
     try {
       GitHub github = GitHub.connectUsingOAuth(accessToken);
       GHCreateRepositoryBuilder builder = github.createRepository(repoName)
@@ -48,7 +65,7 @@ public class JGitService {
           .description("ACG Repository");
       GHRepository repository = builder.create();
 
-      String IsSuccess = commitToGitHubRepository(existUser, repoName, accessToken, "initial commit", localRepoPath, localRepoDirectory);
+      String IsSuccess = commitToGitHubRepository(existUser,"initial commit", localRepoPath, localRepoDirectory);
 
       if (IsSuccess.equals("success")) {
         existUser.registerRepo(repoName);
@@ -84,9 +101,12 @@ public class JGitService {
     }
   }
 
-  private String commitToGitHubRepository(User user, String repoName, String accessToken, String commitMessage, String localRepoPath, File localRepoDirectory)
+  public String commitToGitHubRepository(User user, String commitMessage, String localRepoPath, File localRepoDirectory)
       throws IOException {
     Git git = null;
+    String repoName = user.getUserRepo();
+    String accessToken = user.getUserToken();
+
 
     try {
       // GitHub 리포지토리를 로컬로 클론

@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 @Service
 @RequiredArgsConstructor
 public class GitHubCommitService {
+  private final JGitService jGitService;
 
   private final UserJpaRepository userJpaRepository;
   private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 10개 thread 사용
@@ -44,13 +45,13 @@ public class GitHubCommitService {
     }
   }
 
-  public String commitToGitHubRepositoryByAllUsers(User user) {
+  public String commitToGitHubRepositoryByAllUsers(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
     if (!localRepoDirectory.exists()) {
-      return "서비스를 이용 중이 아닙니다.";
+      return jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
     } else {
       try {
         // GitHub 레포지토리 접속
