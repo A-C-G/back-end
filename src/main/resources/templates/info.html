@@ -73,7 +73,7 @@
 <div th:if="${info != null}" class="centered">
   <p th:if="${info.status == true}" style="color: green; font-weight: bold; font-size: 30px;">이용 중입니다.</p>
   <p th:if="${info.status == true}" class="repo-name">저장소 이름: <span th:text="${info.repoName}" style="font-size: 20px;"></span></p>
-  <p th:if="${info.status == true}" class="update-time">최근 업데이트 시간: <span th:text="${info.updateTime}" style="font-size: 20px;"></span></p>
+  <p th:if="${info.status == true}" class="update-time">최근 업데이트 시간: <span th:text="${info.updateTime} + UTC" style="font-size: 20px;"></span></p>
   <p th:if="${info.status == false}" style="color: red; font-weight: bold; font-size: 30px;">계정 없음</p>
   <div class="custom-button-container">
     <a th:if="${info.status == false}" href="/setting" class="custom-button setting-button">서비스 이용</a>
