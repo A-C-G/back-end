@@ -31,6 +31,9 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
+      - name: Configure AWS CLI
+        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       #ec2에 github action 가상머신 ip 추가
       #ssh 관련 작업하기 위함
       - name: Add Github Actions IP to Security group
