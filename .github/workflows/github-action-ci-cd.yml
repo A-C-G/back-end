@@ -31,9 +31,6 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
 
-      - name: Configure AWS CLI
-        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       #ec2에 github action 가상머신 ip 추가
       #ssh 관련 작업하기 위함
       - name: Add Github Actions IP to Security group
@@ -75,10 +72,10 @@ jobs:
           password: ${{ secrets.EC2_PASSWORD }}
           port: ${{ secrets.EC2_SSH_PORT }}
           script: |
-            docker stop ACG-api
-            docker rm ACG-api
+            docker stop ACG
+            docker rm ACG
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo
-            docker run -d -p 8080:8080 --name ACG-api ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo
+            docker run -d -p 8080:8080 --name ACG ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo
 
       #ec2 시큐리티 그룹에서 github action ip 제거
       - name: Remove Github Actions IP from security group
