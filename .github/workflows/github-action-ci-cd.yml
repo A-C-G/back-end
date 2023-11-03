@@ -23,6 +23,9 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
+      - name: Install dos2unix
+        run: sudo apt-get update && sudo apt-get install dos2unix -y
+
       - name: Convert gradlew to Unix format
         run: |
           dos2unix gradlew
