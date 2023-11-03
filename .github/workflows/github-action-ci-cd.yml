@@ -63,7 +63,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo:latest
 
       - name: Connect ec2 and Run Docker Container
         uses: appleboy/ssh-action@v0.1.6
@@ -75,8 +75,8 @@ jobs:
           script: |
             docker stop ACG-api
             docker rm ACG-api
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo
-            docker run -d -p 8080:8080 --name ACG-api ${{ secrets.DOCKERHUB_USERNAME }}/dev-repo
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
+            docker run -d -p 8080:8080 --name ACG-api ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
 
       - name: Remove Github Actions IP from security group
         if: always()
