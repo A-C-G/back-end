@@ -23,6 +23,11 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
+      - name: Convert gradlew to Unix format
+        run: |
+          dos2unix gradlew
+        if: steps.dos2unix.outputs.return-code == 0
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -31,10 +36,7 @@ jobs:
         uses: haythem/public-ip@v1.2
 
       - name: Configure AWS CLI
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region ap-northeast-2
+        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set region ap-northeast-2
 
       - name: Add Github Actions IP to Security group
         run: |
