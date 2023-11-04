@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -26,6 +27,7 @@ import java.util.concurrent.Executors;
 @Service
 @RequiredArgsConstructor
 public class GitHubCommitService {
+
   private final JGitService jGitService;
 
   private final UserJpaRepository userJpaRepository;
@@ -36,19 +38,23 @@ public class GitHubCommitService {
     List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
     for (User user : userList) {
       executorService.execute(() -> {
+        // 깃허브 커밋 정리
         try {
-          // 각 사용자의 GitHub 리포지토리에 커밋을 실행하는 코드
           commitWithFileCleanup(user);
-          commitToGitHubRepositoryByAllUsers(user);
         } catch (Exception e) {
-          // 예외 처리 (예외 로깅 또는 다른 처리)
+          e.printStackTrace();
+        }
+        // 깃허브 자동 커밋
+        try {
+          commitToGitHubRepository(user);
+        } catch (Exception e) {
           e.printStackTrace();
         }
       });
     }
   }
 
-  public String commitToGitHubRepositoryByAllUsers(User user) throws IOException {
+  public String commitToGitHubRepository(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
@@ -62,6 +68,15 @@ public class GitHubCommitService {
             user.getUserToken(), "");
         git = Git.open(localRepoDirectory);
 
+        // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
+        git.pull()
+            .setCredentialsProvider(credentialsProvider)
+            .call();
+
+        git.rebase()
+            .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
+            .call();
+
         // 변경사항을 만들고 초기 커밋
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/csv"));
@@ -69,6 +84,7 @@ public class GitHubCommitService {
         String currentDateTime = LocalDateTime.now().format(formatter);
         File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + "_UTC.txt");
         fileToCommit.createNewFile();
+
         git.add()
             .addFilepattern(".")
             .call();
@@ -93,6 +109,7 @@ public class GitHubCommitService {
       }
     }
   }
+
   public String commitWithFileCleanup(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
@@ -107,22 +124,35 @@ public class GitHubCommitService {
             user.getUserToken(), "");
         git = Git.open(localRepoDirectory);
 
+        // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
+        git.pull()
+            .setCredentialsProvider(credentialsProvider)
+            .call();
+
+        git.rebase()
+            .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
+            .call();
+
         // 현재 로컬 저장소 파일 수 세기
         File[] localRepoFiles = localRepoDirectory.listFiles();
         int fileCount = localRepoFiles != null ? localRepoFiles.length : 0;
 
-        // 파일 수가 10개를 초과하는 경우 일부 파일 삭제
+        // 파일 수가 10개를 초과하는 경우 전부 삭제
         if (fileCount > 10) {
-          // 삭제할 파일 수 계산
-          int filesToDelete = fileCount - 10;
+
           // 파일을 최신 수정일 기준으로 정렬
           Arrays.sort(localRepoFiles, Comparator.comparingLong(File::lastModified));
 
           // 파일 삭제
-          for (int i = 0; i < filesToDelete; i++) {
+          for (int i = 0; i < fileCount; i++) {
             File fileToDelete = localRepoFiles[i];
             if (fileToDelete.delete()) {
               System.out.println("Deleted file: " + fileToDelete.getName());
+
+              // 삭제한 파일을 스테이징
+              git.rm()
+                  .addFilepattern(fileToDelete.getName())
+                  .call();
             } else {
               System.out.println("Failed to delete file: " + fileToDelete.getName());
             }
@@ -135,19 +165,21 @@ public class GitHubCommitService {
           git.commit()
               .setMessage("Auto Commit with File Cleanup")
               .call();
+
+          // 변경사항을 GitHub 리포지토리로 푸시
+          git.push()
+              .setCredentialsProvider(credentialsProvider)
+              .call();
+
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+          String currentDateTime = LocalDateTime.now().format(formatter);
+
+          user.updateAt(currentDateTime);
+          userJpaRepository.save(user);
+          return "success";
+        } else {
+          return "not enough files";
         }
-
-        // 변경사항을 GitHub 리포지토리로 푸시
-        git.push()
-            .setCredentialsProvider(credentialsProvider)
-            .call();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        String currentDateTime = LocalDateTime.now().format(formatter);
-
-        user.updateAt(currentDateTime);
-        userJpaRepository.save(user);
-        return "success";
       } catch (GitAPIException | IOException | JGitInternalException e) {
         // 예외 처리
         e.printStackTrace();
