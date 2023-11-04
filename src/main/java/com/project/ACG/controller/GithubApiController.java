@@ -34,7 +34,7 @@ public class GithubApiController {
 
 
   @GetMapping("/oauth2/authorization/github")
-  public String getCode(@RequestParam String code, @RequestParam(required = false) String error, RedirectAttributes redirectAttributes)
+  public String getCode(@RequestParam(required = false) String code, @RequestParam(required = false) String error, RedirectAttributes redirectAttributes)
       throws IOException {
     if ("access_denied".equals(error)) {
       System.out.println("승인을 취소하셨습니다.");
