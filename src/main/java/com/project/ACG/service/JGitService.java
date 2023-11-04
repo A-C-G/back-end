@@ -62,11 +62,8 @@ public class JGitService {
       GitHub github = GitHub.connectUsingOAuth(accessToken);
       GHCreateRepositoryBuilder builder = github.createRepository(repoName)
           .private_(false) // 필요에 따라 private 리포지토리로 설정
-          .description("안녕하세요, ACG 서비스입니다. "
-              + "\n 간단한 안내사항을 알려드리겠습니다."
-              + "\n1. 해당 저장소를 지우시면 깃허브 잔디도 사라지기 때문에 주의해주시기 바랍니다."
-              + "\n2. 해당 저장소에 직접적인 영향을 주실 경우, 서비스가 원할하게 제공되지 않을 수 있습니다."
-              + "\n3. 해당 저장소에 12시간에 1번씩 커밋이 올라가고 커밋이 10개 이상이 쌓이면 자동으로 정리됩니다.");
+          .description("ACG Repository")
+          .homepage("https://prod.hyunn.shop/description");
       GHRepository repository = builder.create();
 
       String IsSuccess = commitToGitHubRepository(existUser,"initial commit", localRepoPath, localRepoDirectory);
