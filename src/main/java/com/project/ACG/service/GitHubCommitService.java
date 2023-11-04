@@ -4,7 +4,8 @@ import com.project.ACG.entity.User;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,13 +55,14 @@ public class GitHubCommitService {
     }
   }
 
-  public String commitToGitHubRepository(User user) throws IOException {
+  @Transactional
+  public void commitToGitHubRepository(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
     if (!localRepoDirectory.exists()) {
-      return jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
+      jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
     } else {
       try {
         // GitHub 레포지토리 접속
@@ -80,8 +83,9 @@ public class GitHubCommitService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/csv"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        String currentDateTime = LocalDateTime.now().format(formatter);
-        File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + "_UTC.txt");
+        ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
+        String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
+        File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime);
         fileToCommit.createNewFile();
 
         git.add()
@@ -98,24 +102,23 @@ public class GitHubCommitService {
 
         user.updateAt(currentDateTime);
         userJpaRepository.save(user);
-        return "success";
       } catch (GitAPIException | IOException | JGitInternalException e) {
         // 예외 처리
         e.printStackTrace();
-        return e.getMessage();
       } finally {
 
       }
     }
   }
 
-  public String commitWithFileCleanup(User user) throws IOException {
+  @Transactional
+  public void commitWithFileCleanup(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
     if (!localRepoDirectory.exists()) {
-      return jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
+      jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
     } else {
       try {
         // GitHub 레포지토리 접속
@@ -171,18 +174,15 @@ public class GitHubCommitService {
               .call();
 
           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-          String currentDateTime = LocalDateTime.now().format(formatter);
+          ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
+          String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
 
           user.updateAt(currentDateTime);
           userJpaRepository.save(user);
-          return "success";
-        } else {
-          return "not enough files";
         }
       } catch (GitAPIException | IOException | JGitInternalException e) {
         // 예외 처리
         e.printStackTrace();
-        return e.getMessage();
       } finally {
 
       }
