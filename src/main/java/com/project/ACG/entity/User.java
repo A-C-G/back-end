@@ -57,8 +57,11 @@ public class User {
     return new User(userId, userName, userEmail, userToken);
   }
 
-  public void updateToken(String userToken) {
+  public void returnUser(String userToken) {
     this.userToken = userToken;
+    this.userRepo = null;
+    this.status = false;
+    this.updateTime = null;
   }
 
   public void deleteUser() {

@@ -102,7 +102,7 @@ public class GithubApiService {
         Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
         User existUser = user.get();
 
-        existUser.updateToken(access_token);
+        existUser.returnUser(access_token);
         userJpaRepository.save(existUser);
       }
       // 처음 회원가입하는 경우

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+  @Value("${myapp.secret-token}")
+  private String secretToken;
 
   private final UserJpaRepository userJpaRepository;
 
@@ -59,12 +63,13 @@ public class UserService {
     directory.delete();
   }
 
-  public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response) throws IOException {
+  public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response, String token) throws IOException {
+
     // CSV 파일의 내용을 문자열로 생성
     StringBuilder csvData = new StringBuilder();
 
     // CSV 헤더 행 생성
-    csvData.append("ID,user_ID,user_Name, user_Email, user_Token,user_Repo,status\n");
+    csvData.append("ID, user_ID, user_Name, user_Email, user_Token, user_Repo, status\n");
 
     // 사용자 목록을 가져오고 CSV 데이터를 추가
     List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
@@ -88,7 +93,12 @@ public class UserService {
     String currentDateTime = LocalDateTime.now().format(formatter);
     headers.setContentDispositionFormData("attachment", "users_" + currentDateTime + ".csv");
 
-    return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+    // token이 없거나 token이 일치하지 않을 경우
+    if (token == null || !token.equals(secretToken)) {
+      return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+    } else {
+      return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+    }
   }
 
   public UserDto userInfo(String userId, String userEmail) {
