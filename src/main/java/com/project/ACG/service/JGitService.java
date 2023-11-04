@@ -7,6 +7,8 @@ import com.project.ACG.entity.User;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class JGitService {
 
   private final UserJpaRepository userJpaRepository;
 
+  @Transactional
   public String createRepo(String userId, String userEmail, String repoName) throws JsonProcessingException {
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     User existUser = user.get();
@@ -102,6 +106,7 @@ public class JGitService {
     }
   }
 
+  @Transactional
   public String commitToGitHubRepository(User user, String commitMessage, String localRepoPath, File localRepoDirectory)
       throws IOException {
     Git git = null;
@@ -122,8 +127,9 @@ public class JGitService {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.parseMediaType("text/csv"));
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-      String currentDateTime = LocalDateTime.now().format(formatter);
-      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime + "_UTC.txt");
+      ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
+      String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
+      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime);
       fileToCommit.createNewFile();
       git.add()
           .addFilepattern(".")
@@ -145,6 +151,7 @@ public class JGitService {
     } catch (JGitInternalException ex) {
       return ex.getMessage();
     } finally {
+
     }
   }
 }

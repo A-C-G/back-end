@@ -63,6 +63,7 @@ public class GithubApiService {
     access(responseData, redirectAttributes);
   }
 
+  @Transactional
   // 엑세스 토큰으로 User 객체를 생성하는 로직
   public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
 

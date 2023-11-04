@@ -38,7 +38,7 @@ public class GithubApiController {
       throws IOException {
     if ("access_denied".equals(error)) {
       System.out.println("승인을 취소하셨습니다.");
-      return "redirect:/login";
+      return "redirect:/";
     }
 
     githubApiService.getAccessToken(code, redirectAttributes);
