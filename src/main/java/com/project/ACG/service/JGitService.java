@@ -24,7 +24,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class JGitService {
 
   private final UserJpaRepository userJpaRepository;
 
-  @Transactional
+
   public String createRepo(String userId, String userEmail, String repoName) throws JsonProcessingException {
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     User existUser = user.get();
@@ -50,7 +49,7 @@ public class JGitService {
       try {
         GitHub github = GitHub.connectUsingOAuth(accessToken);
         GHRepository repository = github.getRepository(existRepoName);
-        String IsSuccess = commitToGitHubRepository(existUser, existRepoName, "initial commit", localRepoPath,
+        String IsSuccess = commitToGitHubRepository(existUser, existUser.getUserRepo(), "initial commit", localRepoPath,
             localRepoDirectory);
         if (IsSuccess.equals("success")) {
           return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
@@ -106,7 +105,6 @@ public class JGitService {
     }
   }
 
-  @Transactional
   public String commitToGitHubRepository(User user, String repoName, String commitMessage, String localRepoPath, File localRepoDirectory)
       throws IOException {
     Git git = null;

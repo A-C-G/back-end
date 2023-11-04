@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class GitHubCommitService {
   private final JGitService jGitService;
 
   private final UserJpaRepository userJpaRepository;
-  private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 10개 thread 사용
+  private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 1개 thread 사용
 
   @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12시간마다 실행 (밀리초 단위)
   public void executeCommits() {
@@ -55,7 +54,6 @@ public class GitHubCommitService {
     }
   }
 
-  @Transactional
   public void commitToGitHubRepository(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
@@ -111,7 +109,6 @@ public class GitHubCommitService {
     }
   }
 
-  @Transactional
   public void commitWithFileCleanup(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
