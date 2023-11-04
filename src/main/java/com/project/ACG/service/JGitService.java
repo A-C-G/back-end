@@ -46,11 +46,11 @@ public class JGitService {
     }
 
     if (existUser.getUserRepo() != null) {
-      repoName = userId + "/" + existUser.getUserRepo();
+      String existRepoName = userId + "/" + existUser.getUserRepo();
       try {
         GitHub github = GitHub.connectUsingOAuth(accessToken);
-        GHRepository repository = github.getRepository(repoName);
-        String IsSuccess = commitToGitHubRepository(existUser, "initial commit", localRepoPath,
+        GHRepository repository = github.getRepository(existRepoName);
+        String IsSuccess = commitToGitHubRepository(existUser, existRepoName, "initial commit", localRepoPath,
             localRepoDirectory);
         if (IsSuccess.equals("success")) {
           return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
@@ -70,7 +70,7 @@ public class JGitService {
           .homepage("https://prod.hyunn.shop/description");
       GHRepository repository = builder.create();
 
-      String IsSuccess = commitToGitHubRepository(existUser,"initial commit", localRepoPath, localRepoDirectory);
+      String IsSuccess = commitToGitHubRepository(existUser, repoName,"initial commit", localRepoPath, localRepoDirectory);
 
       if (IsSuccess.equals("success")) {
         existUser.registerRepo(repoName);
@@ -107,10 +107,9 @@ public class JGitService {
   }
 
   @Transactional
-  public String commitToGitHubRepository(User user, String commitMessage, String localRepoPath, File localRepoDirectory)
+  public String commitToGitHubRepository(User user, String repoName, String commitMessage, String localRepoPath, File localRepoDirectory)
       throws IOException {
     Git git = null;
-    String repoName = user.getUserRepo();
     String accessToken = user.getUserToken();
 
 
