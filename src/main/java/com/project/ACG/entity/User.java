@@ -81,14 +81,7 @@ public class User {
     this.updateTime = dateTime;
   }
 
-  public void updateUser(String userId, String userName, String userEmail, String userToken, String userRepo, boolean status,
-      String updateTime) {
-    this.userId = userId;
+  public void updateName(String userName) {
     this.userName = userName;
-    this.userEmail = userEmail;
-    this.userToken = userToken;
-    this.userRepo = userRepo;
-    this.status = status;
-    this.updateTime = updateTime;
   }
 }

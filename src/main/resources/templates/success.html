@@ -81,7 +81,7 @@
     </p>
   </div>
   <div class="custom-button-container">
-    <a th:href="@{'/user?userId=' + ${result.login} + '&userEmail=' + ${result.Email}}" class="custom-button info-button">정보 확인</a>
+    <a th:href="@{'/user?userId=' + ${result.login} + '&userEmail=' + ${result.Email} + '&userName=' + ${result.name}}" class="custom-button info-button">정보 확인</a>
     <a href="/setting" class="custom-button setting-button">서비스 이용</a>
     <a href="/withdraw" class="custom-button withdraw-button">서비스 탈퇴</a>
   </div>

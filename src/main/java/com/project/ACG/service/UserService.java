@@ -102,15 +102,14 @@ public class UserService {
   }
 
   @Transactional
-  public UserDto userInfo(String userId, String userEmail) {
+  public UserDto userInfo(String userId, String userEmail, String userName) {
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
 
     if (!userJpaRepository.existsUserByUserIdAndUserEmail(userId, userEmail)) {
       return UserDto.create(false, null, null);
     }
     User targetUser = user.get();
-    targetUser.updateUser(targetUser.getUserId(),targetUser.getUserName(), targetUser.getUserEmail(),
-        targetUser.getUserToken(), targetUser.getUserRepo(), targetUser.isStatus(), targetUser.getUpdateTime());
+    targetUser.updateName(userName);
     userJpaRepository.save(targetUser);
 
     boolean status = false;
