@@ -98,12 +98,18 @@ public class GithubApiService {
       email = jsonNode.get("Email").asText();
 
       // 이전에 회원가입 전적이 있는 경우
-      if(userJpaRepository.existsUserByUserIdAndUserEmail(login, email)){
+      if (userJpaRepository.existsUserByUserIdAndUserEmail(login, email)){
         Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
         User existUser = user.get();
 
-        existUser.returnUser(access_token);
-        userJpaRepository.save(existUser);
+        // 휴면 계정인 경우
+        if (existUser.isStatus() == false) {
+          existUser.returnUser(access_token);
+          userJpaRepository.save(existUser);
+        } else {
+          existUser.updateToken(access_token);
+          userJpaRepository.save(existUser);
+        }
       }
       // 처음 회원가입하는 경우
       else {
