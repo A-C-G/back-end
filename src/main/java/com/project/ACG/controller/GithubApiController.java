@@ -61,4 +61,9 @@ public class GithubApiController {
     model.addAttribute("info", userDto);
     return "info";
   }
+
+  @GetMapping("/description")
+  public String description() {
+    return "description";
+  }
 }

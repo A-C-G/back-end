@@ -62,7 +62,8 @@ public class JGitService {
       GitHub github = GitHub.connectUsingOAuth(accessToken);
       GHCreateRepositoryBuilder builder = github.createRepository(repoName)
           .private_(false) // 필요에 따라 private 리포지토리로 설정
-          .description("ACG Repository");
+          .description("ACG Repository")
+          .homepage("https://prod.hyunn.shop/description");
       GHRepository repository = builder.create();
 
       String IsSuccess = commitToGitHubRepository(existUser,"initial commit", localRepoPath, localRepoDirectory);

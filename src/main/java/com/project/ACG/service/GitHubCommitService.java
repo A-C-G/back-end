@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.transport.CredentialsProvider;
