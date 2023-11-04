@@ -56,8 +56,8 @@ public class GithubApiController {
   }
 
   @GetMapping("/user")
-  public String userInfo(@RequestParam String userId, @RequestParam String userEmail, Model model) {
-    UserDto userDto = userService.userInfo(userId, userEmail);
+  public String userInfo(@RequestParam String userId, @RequestParam String userEmail, @RequestParam String userName, Model model) {
+    UserDto userDto = userService.userInfo(userId, userEmail, userName);
     model.addAttribute("info", userDto);
     return "info";
   }
