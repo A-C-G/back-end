@@ -60,8 +60,9 @@ public class GitHubCommitService {
 
     try {
       // GitHub 레포지토리 접속
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
-          user.getUserToken(), "");
+      String userId = user.getUserId(); // 사용자 ID 가져오기
+      String userToken = user.getUserToken(); // 사용자 토큰 가져오기
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
       git = Git.open(localRepoDirectory);
 
       // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
@@ -115,8 +116,9 @@ public class GitHubCommitService {
     }
     try {
       // GitHub 레포지토리 접속
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
-          user.getUserToken(), "");
+      String userId = user.getUserId(); // 사용자 ID 가져오기
+      String userToken = user.getUserToken(); // 사용자 토큰 가져오기
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
       git = Git.open(localRepoDirectory);
 
       // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
