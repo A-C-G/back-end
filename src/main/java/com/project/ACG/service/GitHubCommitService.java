@@ -53,7 +53,7 @@ public class GitHubCommitService {
     }
   }
 
-  public void commitToGitHubRepository(User user) throws IOException {
+  public void commitToGitHubRepository(User user) {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
@@ -62,7 +62,9 @@ public class GitHubCommitService {
       // GitHub 레포지토리 접속
       String userId = user.getUserId(); // 사용자 ID 가져오기
       String userToken = user.getUserToken(); // 사용자 토큰 가져오기
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId,
+          userToken);
+      System.out.println(credentialsProvider);
       git = Git.open(localRepoDirectory);
 
       // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
@@ -97,7 +99,7 @@ public class GitHubCommitService {
 
       user.updateAt(currentDateTime);
       userJpaRepository.save(user);
-    } catch (GitAPIException | IOException | JGitInternalException e) {
+    } catch (Exception e) {
       // 예외 처리
       e.printStackTrace();
     } finally {
