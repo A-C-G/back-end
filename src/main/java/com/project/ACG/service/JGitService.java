@@ -109,12 +109,13 @@ public class JGitService {
     Git git = null;
     String accessToken = user.getUserToken();
 
-
     try {
-      // GitHub 리포지토리를 로컬로 클론
-      String userId = user.getUserId(); // 사용자 ID 가져오기
-      String userToken = user.getUserToken(); // 사용자 토큰 가져오기
+      // GitHub 레포지토리 접속
+      String userId = user.getUserId();
+      String userToken = user.getUserToken();
+      String userEmail = user.getUserEmail(); // 사용자별로 저장한 Git 사용자 이메일
       CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
+
       git = Git.cloneRepository()
           .setCredentialsProvider(credentialsProvider)
           .setURI("https://github.com/" + user.getUserId() + "/" + repoName + ".git")
@@ -129,6 +130,12 @@ public class JGitService {
       String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
       File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime);
       fileToCommit.createNewFile();
+
+      // Git 사용자 이름과 이메일 설정
+      git.getRepository().getConfig().setString("user", null, "name", userId);
+      git.getRepository().getConfig().setString("user", null, "email", userEmail);
+      git.getRepository().getConfig().save();
+
       git.add()
           .addFilepattern(".")
           .call();
