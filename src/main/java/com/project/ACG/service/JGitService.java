@@ -112,7 +112,9 @@ public class JGitService {
 
     try {
       // GitHub 리포지토리를 로컬로 클론
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(accessToken, "");
+      String userId = user.getUserId(); // 사용자 ID 가져오기
+      String userToken = user.getUserToken(); // 사용자 토큰 가져오기
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
       git = Git.cloneRepository()
           .setCredentialsProvider(credentialsProvider)
           .setURI("https://github.com/" + user.getUserId() + "/" + repoName + ".git")
