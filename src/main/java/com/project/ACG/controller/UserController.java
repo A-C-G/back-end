@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserService userService;
+	private final UserService userService;
 
-  @GetMapping("/user/list/csv")
-  public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response,
-      @RequestHeader(value = "Token", required = false) String token) throws IOException {
-    return userService.getUserListToCSV(response, token);
-  }
+	@GetMapping("/user/list/csv")
+	public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response,
+		@RequestHeader(value = "Token", required = false) String token) throws IOException {
+		return userService.getUserListToCSV(response, token);
+	}
 
-  @PostMapping("/user")
-  public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
-    String targetUserId = userId.split(",")[0].trim();
-    String targetUserEmail = userEmail.split(",")[0].trim();
-    return userService.deleteUser(targetUserId, targetUserEmail);
-  }
+	@PostMapping("/user")
+	public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
+		String targetUserId = userId.split(",")[0].trim();
+		String targetUserEmail = userEmail.split(",")[0].trim();
+		return userService.deleteUser(targetUserId, targetUserEmail);
+	}
 }

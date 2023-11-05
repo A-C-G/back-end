@@ -13,57 +13,56 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
 @Controller
 @RequiredArgsConstructor
 public class GithubApiController {
 
-  private final GithubApiService githubApiService;
-  private final UserService userService;
+	private final GithubApiService githubApiService;
+	private final UserService userService;
 
-  @GetMapping("/success")
-  public String success(HttpServletRequest request, Model model) throws JsonProcessingException {
-    try {
-      githubApiService.success(request, model);
-    } catch (IllegalArgumentException e) {
-      return "redirect:/";
-    }
+	@GetMapping("/success")
+	public String success(HttpServletRequest request, Model model) throws JsonProcessingException {
+		try {
+			githubApiService.success(request, model);
+		} catch (IllegalArgumentException e) {
+			return "redirect:/";
+		}
+		return "success";
+	}
 
-    return "success";
-  }
+	@GetMapping("/oauth2/authorization/github")
+	public String getCode(@RequestParam(required = false) String code,
+		@RequestParam(required = false) String error, RedirectAttributes redirectAttributes)
+		throws IOException {
+		if ("access_denied".equals(error)) {
+			System.out.println("승인을 취소하셨습니다.");
+			return "redirect:/";
+		}
 
+		githubApiService.getAccessToken(code, redirectAttributes);
+		return "redirect:/success";
+	}
 
-  @GetMapping("/oauth2/authorization/github")
-  public String getCode(@RequestParam(required = false) String code, @RequestParam(required = false) String error, RedirectAttributes redirectAttributes)
-      throws IOException {
-    if ("access_denied".equals(error)) {
-      System.out.println("승인을 취소하셨습니다.");
-      return "redirect:/";
-    }
+	@GetMapping("/setting")
+	public String setting() {
+		return "setting";
+	}
 
-    githubApiService.getAccessToken(code, redirectAttributes);
-    return "redirect:/success";
-  }
+	@GetMapping("/withdraw")
+	public String withdraw() {
+		return "withdraw";
+	}
 
-  @GetMapping("/setting")
-  public String setting() {
-    return "setting";
-  }
+	@GetMapping("/user")
+	public String userInfo(@RequestParam String userId, @RequestParam String userEmail,
+		@RequestParam String userName, Model model) {
+		UserDto userDto = userService.userInfo(userId, userEmail, userName);
+		model.addAttribute("info", userDto);
+		return "info";
+	}
 
-  @GetMapping("/withdraw")
-  public String withdraw() {
-    return "withdraw";
-  }
-
-  @GetMapping("/user")
-  public String userInfo(@RequestParam String userId, @RequestParam String userEmail, @RequestParam String userName, Model model) {
-    UserDto userDto = userService.userInfo(userId, userEmail, userName);
-    model.addAttribute("info", userDto);
-    return "info";
-  }
-
-  @GetMapping("/description")
-  public String description() {
-    return "description";
-  }
+	@GetMapping("/description")
+	public String description() {
+		return "description";
+	}
 }
