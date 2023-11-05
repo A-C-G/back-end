@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,8 @@ public class GitHubCommitService {
   private final JGitService jGitService;
 
   private final UserJpaRepository userJpaRepository;
-  private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 1개 thread 사용
+
+  private final ExecutorService executorService = Executors.newFixedThreadPool(1); // 단일 스레드 사용
 
   @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12시간마다 실행 (밀리초 단위)
   public void executeCommits() {
@@ -53,6 +55,7 @@ public class GitHubCommitService {
     }
   }
 
+  @Transactional
   public void commitToGitHubRepository(User user) {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
@@ -62,9 +65,7 @@ public class GitHubCommitService {
       // GitHub 레포지토리 접속
       String userId = user.getUserId(); // 사용자 ID 가져오기
       String userToken = user.getUserToken(); // 사용자 토큰 가져오기
-      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId,
-          userToken);
-      System.out.println(credentialsProvider);
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
       git = Git.open(localRepoDirectory);
 
       // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
@@ -107,8 +108,8 @@ public class GitHubCommitService {
     }
   }
 
+  @Transactional
   public void commitWithFileCleanup(User user) throws IOException {
-    System.out.println("commit Cleanup");
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
@@ -121,6 +122,7 @@ public class GitHubCommitService {
       String userId = user.getUserId(); // 사용자 ID 가져오기
       String userToken = user.getUserToken(); // 사용자 토큰 가져오기
       CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(userId, userToken);
+      System.out.println(credentialsProvider.toString());
       git = Git.open(localRepoDirectory);
 
       // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
