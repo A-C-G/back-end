@@ -1,7 +1,5 @@
 package com.project.ACG.entity;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
