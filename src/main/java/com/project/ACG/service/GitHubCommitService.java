@@ -58,134 +58,130 @@ public class GitHubCommitService {
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
-    if (!localRepoDirectory.exists()) {
-      jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
-    } else {
-      try {
-        // GitHub 레포지토리 접속
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
-            user.getUserToken(), "");
-        git = Git.open(localRepoDirectory);
+    try {
+      // GitHub 레포지토리 접속
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
+          user.getUserToken(), "");
+      git = Git.open(localRepoDirectory);
 
-        // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
-        git.pull()
-            .setCredentialsProvider(credentialsProvider)
-            .call();
+      // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
+      git.pull()
+          .setCredentialsProvider(credentialsProvider)
+          .call();
 
-        git.rebase()
-            .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
-            .call();
+      git.rebase()
+          .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
+          .call();
 
-        // 변경사항을 만들고 초기 커밋
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("text/csv"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
-        String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
-        File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime);
-        fileToCommit.createNewFile();
+      // 변경사항을 만들고 초기 커밋
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.parseMediaType("text/csv"));
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+      ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
+      String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
+      File fileToCommit = new File(localRepoPath, "sample_" + currentDateTime);
+      fileToCommit.createNewFile();
 
-        git.add()
-            .addFilepattern(".")
-            .call();
-        git.commit()
-            .setMessage("Auto Commit at " + currentDateTime)
-            .call();
+      git.add()
+          .addFilepattern(".")
+          .call();
+      git.commit()
+          .setMessage("Auto Commit at " + currentDateTime)
+          .call();
 
-        // 변경사항을 GitHub 리포지토리로 푸시
-        git.push()
-            .setCredentialsProvider(credentialsProvider)
-            .call();
+      // 변경사항을 GitHub 리포지토리로 푸시
+      git.push()
+          .setCredentialsProvider(credentialsProvider)
+          .call();
 
-        user.updateAt(currentDateTime);
-        userJpaRepository.save(user);
-      } catch (GitAPIException | IOException | JGitInternalException e) {
-        // 예외 처리
-        e.printStackTrace();
-      } finally {
+      user.updateAt(currentDateTime);
+      userJpaRepository.save(user);
+    } catch (GitAPIException | IOException | JGitInternalException e) {
+      // 예외 처리
+      e.printStackTrace();
+    } finally {
 
-      }
     }
   }
 
   public void commitWithFileCleanup(User user) throws IOException {
+    System.out.println("commit Cleanup");
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
     Git git = null;
 
     if (!localRepoDirectory.exists()) {
+      System.out.println(user.getUserId() + "로컬 레포 연결");
       jGitService.createRepo(user.getUserId(), user.getUserEmail(), user.getUserRepo());
-    } else {
-      try {
-        // GitHub 레포지토리 접속
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
-            user.getUserToken(), "");
-        git = Git.open(localRepoDirectory);
+    }
+    try {
+      // GitHub 레포지토리 접속
+      CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
+          user.getUserToken(), "");
+      git = Git.open(localRepoDirectory);
 
-        // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
-        git.pull()
+      // 동기화: GitHub 리포지토리로부터 최신 변경사항 가져오기
+      git.pull()
+          .setCredentialsProvider(credentialsProvider)
+          .call();
+
+      git.rebase()
+          .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
+          .call();
+
+      // 현재 로컬 저장소 파일 수 세기
+      File[] localRepoFiles = localRepoDirectory.listFiles();
+      int fileCount = localRepoFiles != null ? localRepoFiles.length : 0;
+      System.out.println("fileCount : " + fileCount);
+
+      // 파일 수가 10개를 초과하는 경우 전부 삭제
+      if (fileCount > 10) {
+        // 파일을 최신 수정일 기준으로 정렬
+        Arrays.sort(localRepoFiles, Comparator.comparingLong(File::lastModified));
+
+        // 파일 삭제
+        for (int i = 0; i < fileCount; i++) {
+          File fileToDelete = localRepoFiles[i];
+          if (fileToDelete.delete()) {
+            System.out.println("Deleted file: " + fileToDelete.getName());
+
+            // 삭제한 파일을 스테이징
+            git.rm()
+                .addFilepattern(fileToDelete.getName())
+                .call();
+          } else {
+            System.out.println("Failed to delete file: " + fileToDelete.getName());
+          }
+        }
+        System.out.println(user.getUserId() + "파일 삭제 완료");
+
+        // 변경사항을 GitHub 리포지토리로 커밋
+        git.add()
+            .addFilepattern(".")
+            .call();
+        git.commit()
+            .setMessage("Auto Commit with File Cleanup")
+            .call();
+        System.out.println(user.getUserId() + "커밋 완료");
+
+        // 변경사항을 GitHub 리포지토리로 푸시
+        git.push()
             .setCredentialsProvider(credentialsProvider)
             .call();
+        System.out.println(user.getUserId() + "푸시 완료");
 
-        git.rebase()
-            .setUpstream("origin/master") // 원격 저장소가 'origin'이고 브랜치가 'master'인 경우
-            .call();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
+        String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
 
-        // 현재 로컬 저장소 파일 수 세기
-        File[] localRepoFiles = localRepoDirectory.listFiles();
-        int fileCount = localRepoFiles != null ? localRepoFiles.length : 0;
-        System.out.println(fileCount);
-
-        // 파일 수가 10개를 초과하는 경우 전부 삭제
-        if (fileCount > 10) {
-
-          // 파일을 최신 수정일 기준으로 정렬
-          Arrays.sort(localRepoFiles, Comparator.comparingLong(File::lastModified));
-
-          // 파일 삭제
-          for (int i = 0; i < fileCount; i++) {
-            File fileToDelete = localRepoFiles[i];
-            if (fileToDelete.delete()) {
-              System.out.println("Deleted file: " + fileToDelete.getName());
-
-              // 삭제한 파일을 스테이징
-              git.rm()
-                  .addFilepattern(fileToDelete.getName())
-                  .call();
-            } else {
-              System.out.println("Failed to delete file: " + fileToDelete.getName());
-            }
-          }
-          System.out.println("파일 삭제 완료");
-
-          // 변경사항을 GitHub 리포지토리로 커밋
-          git.add()
-              .addFilepattern(".")
-              .call();
-          git.commit()
-              .setMessage("Auto Commit with File Cleanup")
-              .call();
-          System.out.println("커밋 완료");
-
-          // 변경사항을 GitHub 리포지토리로 푸시
-          git.push()
-              .setCredentialsProvider(credentialsProvider)
-              .call();
-          System.out.println("푸시 완료");
-
-          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-          ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
-          String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
-
-          user.updateAt(currentDateTime);
-          userJpaRepository.save(user);
-        }
-      } catch (GitAPIException | IOException | JGitInternalException e) {
-        // 예외 처리
-        e.printStackTrace();
-      } finally {
-
+        user.updateAt(currentDateTime);
+        userJpaRepository.save(user);
       }
+    } catch (GitAPIException | IOException | JGitInternalException e) {
+      // 예외 처리
+      e.printStackTrace();
+    } finally {
+
     }
   }
 }
