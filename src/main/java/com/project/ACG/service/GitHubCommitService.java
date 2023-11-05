@@ -134,6 +134,7 @@ public class GitHubCommitService {
         // 현재 로컬 저장소 파일 수 세기
         File[] localRepoFiles = localRepoDirectory.listFiles();
         int fileCount = localRepoFiles != null ? localRepoFiles.length : 0;
+        System.out.println(fileCount);
 
         // 파일 수가 10개를 초과하는 경우 전부 삭제
         if (fileCount > 10) {
@@ -155,6 +156,7 @@ public class GitHubCommitService {
               System.out.println("Failed to delete file: " + fileToDelete.getName());
             }
           }
+          System.out.println("파일 삭제 완료");
 
           // 변경사항을 GitHub 리포지토리로 커밋
           git.add()
@@ -163,11 +165,13 @@ public class GitHubCommitService {
           git.commit()
               .setMessage("Auto Commit with File Cleanup")
               .call();
+          System.out.println("커밋 완료");
 
           // 변경사항을 GitHub 리포지토리로 푸시
           git.push()
               .setCredentialsProvider(credentialsProvider)
               .call();
+          System.out.println("푸시 완료");
 
           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
           ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
