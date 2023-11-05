@@ -20,7 +20,7 @@
 <br>
 
 # 💼 Server Architecture
-![image](https://github.com/ASAP-as-soon-as-possible/ASAP_Server/assets/79795051/d1aae75e-4ce9-4b1e-9b70-8a5ea07e37e2)
+<img src="https://velog.velcdn.com/images/jmjmjmz732002/post/a6c7a7be-ff27-4723-bfe2-d458ed641fab/image.png">
 <br>
 
 # 🗂️ Directory
