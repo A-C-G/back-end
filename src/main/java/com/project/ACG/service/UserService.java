@@ -69,7 +69,7 @@ public class UserService {
 		StringBuilder csvData = new StringBuilder();
 
 		// CSV 헤더 행 생성
-		csvData.append("ID, user_ID, user_Name, user_Email, user_Token, user_Repo, status\n");
+		csvData.append("ID, user_ID, user_Name, user_Email, user_Token, user_Repo, status, update_time\n");
 
 		// 사용자 목록을 가져오고 CSV 데이터를 추가
 		List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
@@ -80,7 +80,8 @@ public class UserService {
 				.append(user.getUserEmail()).append(",")
 				.append(user.getUserToken()).append(",")
 				.append(user.getUserRepo()).append(",")
-				.append(user.isStatus()).append("\n");
+				.append(user.isStatus()).append(",")
+				.append(user.getUpdateTime()).append("\n");
 		}
 
 		// CSV 문자열을 바이트 배열로 변환
