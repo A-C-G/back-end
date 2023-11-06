@@ -37,7 +37,12 @@
 │               │   └── UserController
 │               ├── entity
 │               │   │── User
-│               │   └── UserDto
+│               │   │── UserDto
+│               │   │── UserUpdateRequest
+│               │   └── UserUpdateResponse
+│               ├── exception
+│               │   │── ErrorResponse
+│               │   └── GlobalExceptionHandler
 │               ├── repository
 │               │   └── UserJpaRepositoty
 │               └── service

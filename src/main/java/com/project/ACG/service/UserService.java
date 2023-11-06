@@ -1,9 +1,9 @@
 package com.project.ACG.service;
 
 import com.project.ACG.entity.User;
-import com.project.ACG.entity.dto.UserDto;
-import com.project.ACG.entity.dto.UserUpdateRequest;
-import com.project.ACG.entity.dto.UserUpdateResponse;
+import com.project.ACG.entity.UserDto;
+import com.project.ACG.entity.UserUpdateRequest;
+import com.project.ACG.entity.UserUpdateResponse;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
 import java.io.IOException;

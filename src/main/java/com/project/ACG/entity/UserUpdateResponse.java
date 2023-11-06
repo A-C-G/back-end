@@ -1,4 +1,4 @@
-package com.project.ACG.entity.dto;
+package com.project.ACG.entity;
 
 import lombok.Getter;
 

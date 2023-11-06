@@ -1,4 +1,4 @@
-package com.project.ACG.entity.dto;
+package com.project.ACG.entity;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;

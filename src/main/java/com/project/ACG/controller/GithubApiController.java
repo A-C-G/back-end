@@ -1,7 +1,7 @@
 package com.project.ACG.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.project.ACG.entity.dto.UserDto;
+import com.project.ACG.entity.UserDto;
 import com.project.ACG.service.GithubApiService;
 import com.project.ACG.service.UserService;
 import java.io.IOException;
