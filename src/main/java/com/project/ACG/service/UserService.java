@@ -69,10 +69,10 @@ public class UserService {
 		StringBuilder csvData = new StringBuilder();
 
 		// CSV 헤더 행 생성
-		csvData.append("ID, user_ID, user_Name, user_Email, user_Token, user_Repo, status, update_time\n");
+		csvData.append("ID,user_ID,user_Name,user_Email,user_Token,user_Repo,status,update_time\n");
 
 		// 사용자 목록을 가져오고 CSV 데이터를 추가
-		List<User> userList = userJpaRepository.findAllByStatusIsTrue().get();
+		List<User> userList = userJpaRepository.findAll();
 		for (User user : userList) {
 			csvData.append(user.getId()).append(",")
 				.append(user.getUserId()).append(",")
