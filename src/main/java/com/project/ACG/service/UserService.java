@@ -2,6 +2,8 @@ package com.project.ACG.service;
 
 import com.project.ACG.entity.User;
 import com.project.ACG.entity.UserDto;
+import com.project.ACG.entity.UserUpdateRequest;
+import com.project.ACG.entity.UserUpdateResponse;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
 import java.io.IOException;
@@ -129,6 +131,33 @@ public class UserService {
 		}
 
 		return UserDto.create(status, updateTime, repoName);
+	}
+
+	@Transactional
+	public ResponseEntity<UserUpdateResponse> updateUser(UserUpdateRequest userUpdateRequest) {
+
+		Long id = userUpdateRequest.getId().longValue();
+		String userId = userUpdateRequest.getUserId();
+		String userEmail = userUpdateRequest.getUserEmail();
+		String updateTime = userUpdateRequest.getUpdateTime();
+		String error = userUpdateRequest.getError();
+
+		Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
+
+		if (!user.isPresent()) {
+			return new ResponseEntity<>(UserUpdateResponse.create(id, userId, userEmail, "존재하지 않는 유저입니다."),HttpStatus.BAD_REQUEST);
+		}
+
+		User existUser = user.get();
+
+		if (error == null) {
+			existUser.updateAt(updateTime);
+		} else {
+			existUser.updateAt(error);
+		}
+		userJpaRepository.save(existUser);
+
+		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "업데이트 성공!"), HttpStatus.OK);
 	}
 }
 
