@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -139,14 +138,18 @@ public class GitHubCommitService {
 			File[] localRepoFiles = localRepoDirectory.listFiles();
 			int fileCount = localRepoFiles != null ? localRepoFiles.length : 0;
 
+			// 해당 확장자의 경우 따로 추출
+			List<String> filesToPreserve = Arrays.asList(".git", ".exp", ".md");
+
 			// 파일 수가 10개를 초과하는 경우 전부 삭제
 			if (fileCount > 10) {
-				// 파일을 최신 수정일 기준으로 정렬
-				Arrays.sort(localRepoFiles, Comparator.comparingLong(File::lastModified));
+				// 위의 확장자를 제외하고 삭제하도록 리스트에 추가
+				File[] filesToDelete = Arrays.stream(localRepoFiles)
+					.filter(file -> !filesToPreserve.contains(file.getName()))
+					.toArray(File[]::new);
 
-				// 파일 삭제
-				for (int i = 0; i < fileCount; i++) {
-					File fileToDelete = localRepoFiles[i];
+				// 로컬 파일 삭제
+				for (File fileToDelete : filesToDelete) {
 					if (fileToDelete.delete()) {
 						System.out.println("Deleted file: " + fileToDelete.getName());
 
