@@ -2,10 +2,7 @@ package com.project.ACG.controller;
 
 import com.project.ACG.entity.UserUpdateRequest;
 import com.project.ACG.entity.UserUpdateResponse;
-import com.project.ACG.repository.UserJpaRepository;
 import com.project.ACG.service.UserService;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 	private final UserService userService;
-	private final UserJpaRepository userJpaRepository;
 
 	@GetMapping("/user/list/csv")
-	public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response,
-		@RequestHeader(value = "Token", required = false) String token) throws IOException {
-		return userService.getUserListToCSV(response, token);
+	public ResponseEntity<byte[]> getUserListToCSV(@RequestHeader(value = "Token", required = false) String token){
+		return userService.getUserListToCSV(token);
 	}
 
 	@PostMapping("/user")
@@ -37,7 +32,8 @@ public class UserController {
 	}
 
 	@PostMapping("/user/update")
-	public ResponseEntity<UserUpdateResponse> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
-		return userService.updateUser(userUpdateRequest);
+	public ResponseEntity<UserUpdateResponse> updateUser(@RequestHeader(value = "Token", required = false) String token,
+	@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
+		return userService.updateUser(userUpdateRequest, token);
 	}
 }

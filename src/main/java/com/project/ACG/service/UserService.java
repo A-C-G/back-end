@@ -6,13 +6,11 @@ import com.project.ACG.entity.UserUpdateRequest;
 import com.project.ACG.entity.UserUpdateResponse;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -64,8 +62,12 @@ public class UserService {
 		directory.delete();
 	}
 
-	public ResponseEntity<byte[]> getUserListToCSV(HttpServletResponse response, String token)
-		throws IOException {
+	public ResponseEntity<byte[]> getUserListToCSV(String token) {
+
+		// token이 없거나 token이 일치하지 않을 경우
+		if (token == null || !token.equals(secretToken)) {
+			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
 
 		// CSV 파일의 내용을 문자열로 생성
 		StringBuilder csvData = new StringBuilder();
@@ -96,12 +98,7 @@ public class UserService {
 		String currentDateTime = LocalDateTime.now().format(formatter);
 		headers.setContentDispositionFormData("attachment", "users_" + currentDateTime + ".csv");
 
-		// token이 없거나 token이 일치하지 않을 경우
-		if (token == null || !token.equals(secretToken)) {
-			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-		} else {
-			return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
-		}
+		return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
 	}
 
 	@Transactional
@@ -134,7 +131,12 @@ public class UserService {
 	}
 
 	@Transactional
-	public ResponseEntity<UserUpdateResponse> updateUser(UserUpdateRequest userUpdateRequest) {
+	public ResponseEntity<UserUpdateResponse> updateUser(UserUpdateRequest userUpdateRequest, String token) {
+
+		// token이 없거나 token이 일치하지 않을 경우
+		if (token == null || !token.equals(secretToken)) {
+			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
 
 		Long id = userUpdateRequest.getId().longValue();
 		String userId = userUpdateRequest.getUserId();
@@ -157,7 +159,7 @@ public class UserService {
 		}
 		userJpaRepository.save(existUser);
 
-		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "업데이트 성공!"), HttpStatus.OK);
+		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "업데이트 성공!" + updateTime), HttpStatus.OK);
 	}
 }
 
