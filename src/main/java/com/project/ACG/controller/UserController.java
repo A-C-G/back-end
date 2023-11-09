@@ -24,7 +24,7 @@ public class UserController {
 		return userService.getUserListToCSV(token);
 	}
 
-	@PostMapping("/user")
+	@PostMapping("/user/delete")
 	public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
 		String targetUserId = userId.split(",")[0].trim();
 		String targetUserEmail = userEmail.split(",")[0].trim();
