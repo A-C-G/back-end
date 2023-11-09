@@ -4,6 +4,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
@@ -21,6 +22,7 @@ public class UserUpdateRequest {
 	private String userEmail;
 
 	@NotBlank(message = "updateTime을 입력하세요.")
+	@Pattern(regexp = "^[0-9\\-]+$", message = "yyyy-MM-dd-HH-mm-ss 형식으로 해주세요.")
 	private String updateTime;
 
 	private String error;
