@@ -155,7 +155,9 @@ public class UserService {
 		if (error == null) {
 			existUser.updateAt(updateTime);
 		} else {
-			existUser.updateAt(error);
+			String modifiedString = error.replace("_", " ");
+			modifiedString = modifiedString.replace("|", System.lineSeparator());
+			existUser.updateAt(modifiedString);
 		}
 		userJpaRepository.save(existUser);
 		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "updateTime : " + existUser.getUpdateTime()), HttpStatus.OK);
