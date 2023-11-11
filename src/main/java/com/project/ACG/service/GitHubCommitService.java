@@ -1,5 +1,8 @@
 package com.project.ACG.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.ACG.entity.User;
 import com.project.ACG.repository.UserJpaRepository;
 import java.io.File;
@@ -55,7 +58,7 @@ public class GitHubCommitService {
 	}
 
 	@Transactional
-	public void commitToGitHubRepository(User user) {
+	public void commitToGitHubRepository(User user) throws JsonProcessingException {
 		String localRepoPath = "/var/" + user.getUserId() + "/samples";
 		File localRepoDirectory = new File(localRepoPath);
 		Git git = null;
@@ -100,9 +103,16 @@ public class GitHubCommitService {
 
 			user.updateAt(currentDateTime);
 			userJpaRepository.save(user);
-		} catch (Exception e) {
-			// 예외 처리
-			e.printStackTrace();
+		} catch (GitAPIException | IOException | JGitInternalException e) {
+			String apiResponse = e.getMessage();
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(apiResponse);
+
+			// "message" 필드 값 추출
+			String message = jsonNode.get("message").asText();
+
+			user.updateAt(message);
+			userJpaRepository.save(user);
 		} finally {
 
 		}
@@ -183,8 +193,15 @@ public class GitHubCommitService {
 				userJpaRepository.save(user);
 			}
 		} catch (GitAPIException | IOException | JGitInternalException e) {
-			// 예외 처리
-			e.printStackTrace();
+			String apiResponse = e.getMessage();
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(apiResponse);
+
+			// "message" 필드 값 추출
+			String message = jsonNode.get("message").asText();
+
+			user.updateAt(message);
+			userJpaRepository.save(user);
 		} finally {
 
 		}
