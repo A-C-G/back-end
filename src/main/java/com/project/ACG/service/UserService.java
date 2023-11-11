@@ -158,8 +158,7 @@ public class UserService {
 			existUser.updateAt(error);
 		}
 		userJpaRepository.save(existUser);
-
-		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "업데이트 성공!" + updateTime), HttpStatus.OK);
+		return new ResponseEntity<>(new UserUpdateResponse(id, userId, userEmail, "updateTime : " + existUser.getUpdateTime()), HttpStatus.OK);
 	}
 }
 
