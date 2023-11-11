@@ -156,6 +156,7 @@ public class UserService {
 			existUser.updateAt(updateTime);
 		} else {
 			int startIndex = error.indexOf("error:");
+			startIndex += "error:".length();
 			int endIndex = error.indexOf("|");
 
 			String parsedString = error.substring(startIndex, endIndex);
