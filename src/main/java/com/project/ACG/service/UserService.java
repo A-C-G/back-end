@@ -156,7 +156,12 @@ public class UserService {
 			existUser.updateAt(updateTime);
 		} else {
 			int startIndex = error.indexOf("error:");
+			startIndex += "error:".length();
+
 			int endIndex = error.indexOf("|");
+			if (endIndex == -1) {
+				endIndex = error.length();
+			}
 
 			String parsedString = error.substring(startIndex, endIndex);
 			parsedString = parsedString.replace("_", " ");
