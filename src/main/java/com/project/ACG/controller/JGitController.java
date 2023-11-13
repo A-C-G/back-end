@@ -13,14 +13,14 @@ public class JGitController {
 
 	private final JGitService jGitService;
 
-	@PostMapping("/user/setting")
+	@PostMapping("/setting")
 	public String createRepo(@RequestParam String userId, @RequestParam String userEmail,
 		@RequestParam String repoName)
 		throws JsonProcessingException {
 		return jGitService.createRepo(userId, userEmail, repoName);
 	}
 
-	@PostMapping("/user/delete")
+	@PostMapping("/delete")
 	public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
 		String targetUserId = userId.split(",")[0].trim();
 		String targetUserEmail = userEmail.split(",")[0].trim();
