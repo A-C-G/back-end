@@ -29,8 +29,10 @@
 │   └── com
 │       └── project
 │           └── ACG
+│               ├── AcgApplication
 │               ├── config
 │               │   ├── SecurityConfig
+│               │   └── SwaggerConfig
 │               ├── controller
 │               │   ├── GithubApiController
 │               │   ├── JGitController
@@ -47,7 +49,7 @@
 │               │   └── UserJpaRepositoty
 │               └── service
 │                   ├── GithubApiService
-│                   ├── GithubCommitService
+│                   ├── AutoCommitService
 │                   ├── JGitService
 │                   └── UserService
 └── test
