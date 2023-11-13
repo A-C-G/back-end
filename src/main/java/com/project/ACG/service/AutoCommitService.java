@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class GitHubCommitService {
+public class AutoCommitService {
 
 	private final JGitService jGitService;
 
