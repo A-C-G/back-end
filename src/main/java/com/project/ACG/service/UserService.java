@@ -31,7 +31,12 @@ public class UserService {
 
 	@Transactional
 	public String deleteUser(String userId, String userEmail) {
+
 		Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
+		if (!user.isPresent()) {
+			return "존재하지 않는 유저입니다.";
+		}
+
 		User targetUser = user.get();
 		if (targetUser.isStatus()) {
 			targetUser.deleteUser();
@@ -46,7 +51,7 @@ public class UserService {
 			}
 			return "유저 삭제 완료 : " + targetUser.getUserId();
 		} else {
-			return "없는 계정입니다.";
+			return "서비스 이용 중이 아닙니다.";
 		}
 	}
 
@@ -135,7 +140,7 @@ public class UserService {
 
 		// token이 없거나 token이 일치하지 않을 경우
 		if (token == null || !token.equals(secretToken)) {
-			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(UserUpdateResponse.create(0L, "error", "error", "토큰이 없거나 토큰이 정확하지 않습니다."), HttpStatus.UNAUTHORIZED);
 		}
 
 		Long id = userUpdateRequest.getId().longValue();
