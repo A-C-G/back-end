@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "user", description = "유저 Api")
@@ -31,7 +30,7 @@ public class UserController {
 	private final UserService userService;
 
 	@Operation(summary = "유저 리스트를 csv 형식으로",
-		description = "헤더의 토큰 값을 넣으면 모든 유저의 DB를 csv로 받을 수 있다. (타 서버를 위한 엔드 포인트)")
+		description = "헤더의 토큰 값을 넣으면 모든 유저의 DB를 csv로 받을 수 있다.")
 	@ApiResponses({@ApiResponse(responseCode = "200", description = "모든 유저 리스트 반환 완료"),
 		@ApiResponse(responseCode = "401", description = "토큰이 없거나 토큰이 정확하지 않습니다.",
 			content = @Content(mediaType = "application/json",
@@ -43,24 +42,12 @@ public class UserController {
 	@Parameter(name = "Token", description = "token", schema = @Schema(type = "string"),
 		in = ParameterIn.HEADER, example = "IAMTOKEN", required = true)
 	@GetMapping("/user/list/csv")
-	public ResponseEntity<byte[]> getUserListToCSV(@RequestHeader(value = "Token", required = false) String token){
+	public ResponseEntity<byte[]> getUserListToCSV(@RequestHeader(value = "Token", required = false) String token) {
 		return userService.getUserListToCSV(token);
 	}
 
-	@Operation(summary = "유저 삭제",
-		description = "유저를 삭제한다. (status를 false로 한다.)")
-	@ApiResponses({@ApiResponse(responseCode = "200", description = "유저 삭제 완료",
-		content = @Content(mediaType = "string",
-			examples = @ExampleObject(value = "유저 삭제 완료 : tester")))})
-	@PostMapping("/user/delete")
-	public String deleteUser(@RequestParam String userId, @RequestParam String userEmail) {
-		String targetUserId = userId.split(",")[0].trim();
-		String targetUserEmail = userEmail.split(",")[0].trim();
-		return userService.deleteUser(targetUserId, targetUserEmail);
-	}
-
 	@Operation(summary = "유저 정보 업데이트",
-		description = "Json 형식의 유저 정보를 DB에 직접적으로 반영한다. (타 서버를 위한 엔드 포인트)")
+		description = "Json 형식의 유저 정보를 보내면 이를 DB에 직접적으로 반영한다.")
 	@ApiResponses({@ApiResponse(responseCode = "200", description = "유저 업데이트 완료"),
 		@ApiResponse(responseCode = "401", description = "토큰이 없거나 토큰이 정확하지 않습니다.",
 			content = @Content(mediaType = "application/json",

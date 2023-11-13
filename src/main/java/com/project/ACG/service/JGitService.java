@@ -23,6 +23,7 @@ import org.kohsuke.github.GitHub;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -162,6 +163,44 @@ public class JGitService {
 		} finally {
 
 		}
+	}
+
+	@Transactional
+	public String deleteUser(String userId, String userEmail) {
+
+		Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
+		if (!user.isPresent()) {
+			return "존재하지 않는 유저입니다.";
+		}
+
+		User targetUser = user.get();
+		if (targetUser.isStatus()) {
+			targetUser.deleteUser();
+			userJpaRepository.save(targetUser);
+
+			// 유저 삭제 후 해당 디렉토리 및 파일 삭제
+			String directoryPath = "/var/" + userId;
+			File directory = new File(directoryPath);
+
+			if (directory.exists()) {
+				deleteDirectory(directory);
+			}
+			return "유저 삭제 완료 : " + targetUser.getUserId();
+		} else {
+			return "서비스 이용 중이 아닙니다.";
+		}
+	}
+
+	private void deleteDirectory(File directory) {
+		if (directory.isDirectory()) {
+			File[] files = directory.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					deleteDirectory(file);
+				}
+			}
+		}
+		directory.delete();
 	}
 }
 

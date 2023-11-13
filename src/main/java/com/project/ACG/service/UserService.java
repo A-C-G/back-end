@@ -5,7 +5,6 @@ import com.project.ACG.entity.UserDto;
 import com.project.ACG.entity.UserUpdateRequest;
 import com.project.ACG.entity.UserUpdateResponse;
 import com.project.ACG.repository.UserJpaRepository;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,44 +27,6 @@ public class UserService {
 	private String secretToken;
 
 	private final UserJpaRepository userJpaRepository;
-
-	@Transactional
-	public String deleteUser(String userId, String userEmail) {
-
-		Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
-		if (!user.isPresent()) {
-			return "존재하지 않는 유저입니다.";
-		}
-
-		User targetUser = user.get();
-		if (targetUser.isStatus()) {
-			targetUser.deleteUser();
-			userJpaRepository.save(targetUser);
-
-			// 유저 삭제 후 해당 디렉토리 및 파일 삭제
-			String directoryPath = "/var/" + userId;
-			File directory = new File(directoryPath);
-
-			if (directory.exists()) {
-				deleteDirectory(directory);
-			}
-			return "유저 삭제 완료 : " + targetUser.getUserId();
-		} else {
-			return "서비스 이용 중이 아닙니다.";
-		}
-	}
-
-	private void deleteDirectory(File directory) {
-		if (directory.isDirectory()) {
-			File[] files = directory.listFiles();
-			if (files != null) {
-				for (File file : files) {
-					deleteDirectory(file);
-				}
-			}
-		}
-		directory.delete();
-	}
 
 	public ResponseEntity<byte[]> getUserListToCSV(String token) {
 
