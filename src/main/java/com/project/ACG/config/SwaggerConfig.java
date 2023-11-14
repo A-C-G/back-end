@@ -45,7 +45,7 @@ public class SwaggerConfig {
 			.info(new Info().title("ACG project")
 				.contact(new Contact().name("ACG").email("hyuntae9912@naver.com"))
 				.description("ACG API 명세서")
-				.summary("ACG 백엔드 API입니다.")
+				.summary("ACG API입니다.")
 				.version("v0.0.1"));
 	}
 }
