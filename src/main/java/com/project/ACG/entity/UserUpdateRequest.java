@@ -25,7 +25,7 @@ public class UserUpdateRequest {
 	@NotBlank(message = "userEmail을 입력하세요.")
 	private String userEmail;
 
-	@Schema(type = "String", example = "2023-11-11-11-11")
+	@Schema(type = "String", example = "2023-11-11-11-11-11")
 	@NotBlank(message = "updateTime을 입력하세요.")
 	@Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}$", message = "yyyy-MM-dd-HH-mm-ss 형식으로 입력하세요.")
 	private String updateTime;
