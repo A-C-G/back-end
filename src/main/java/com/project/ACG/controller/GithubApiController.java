@@ -43,26 +43,11 @@ public class GithubApiController {
 		return "redirect:/success";
 	}
 
-	@GetMapping("/setting")
-	public String setting() {
-		return "setting";
-	}
-
-	@GetMapping("/withdraw")
-	public String withdraw() {
-		return "withdraw";
-	}
-
 	@GetMapping("/user")
 	public String userInfo(@RequestParam String userId, @RequestParam String userEmail,
 		@RequestParam String userName, Model model) {
 		UserDto userDto = userService.userInfo(userId, userEmail, userName);
 		model.addAttribute("info", userDto);
 		return "info";
-	}
-
-	@GetMapping("/description")
-	public String description() {
-		return "description";
 	}
 }
