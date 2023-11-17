@@ -13,7 +13,7 @@ function setConnected(connected) {
 }
 
 function connect() {
-  var socket = new SockJS('https://prod.hyunn.shop/gs-guide-websocket', null, { transports: ['websocket'] });
+  var socket = new SockJS('/gs-guide-websocket', null, { transports: ['websocket'] });
 
   stompClient = Stomp.over(socket);
 
