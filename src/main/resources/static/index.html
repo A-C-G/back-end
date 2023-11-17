@@ -1,121 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE-edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html {
-      background: black;
-      height: 100%;
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #MatrixCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .welcome-text {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-      margin-top: -20px;
-    }
-
-    .custom-button {
-      display: inline-block;
-      padding: 20px 40px;
-      background-color: rgba(0,0,0,0);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      text-align: center;
-      text-decoration: none;
-      font-size: 24px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      z-index: 1; /* 버튼을 앞쪽에 표시 */
-      position: relative; /* 버튼 위치 조정 */
-      width: auto; /* 이미지 크기에 맞게 버튼 폭 조정 (이미지와 일치하게) */
-      height: auto; /* 이미지와 일치하게 높이 자동 조정 (비율 유지) */
-    }
-
-    .custom-button:hover {
-      transform: scale(1.1); /* 호버 시 버튼 크기 조금 커짐 */
-      background-color: rgba(0,0,0,0);;
-    }
-
-    .logo {
-      width: 200px; /* Set the desired width */
-      height: auto; /* Maintain aspect ratio */
-    }
-
-  </style>
-  <title>ACG</title>
+  <title>ACG 익명 채팅방</title>
+  <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/main.css" rel="stylesheet">
+  <script src="/webjars/jquery/jquery.min.js"></script>
+  <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+  <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+  <script src="/app.js"></script>
 </head>
 <body>
-<canvas id="MatrixCanvas"></canvas>
-<div class="welcome-text">
-  <p>안녕하세요, ACG입니다.</p>
-  <p>ACG를 이용하시려면 로그인을 진행해주세요.</p>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+  enabled. Please enable
+  Javascript and reload this page!</h2></noscript>
+<div id="main-content" class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="connect">연결 상태:</label>
+          <button id="connect" class="btn btn-default" type="submit">입장</button>
+          <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">퇴장
+          </button>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="name">메세지를 입력하세요</label>
+          <input type="text" id="name" class="form-control" placeholder="입력해주세요...">
+          <span id="userIdDisplay"></span>
+        </div>
+        <button id="send" class="btn btn-default" type="submit">전송</button>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <table id="conversation" class="table table-striped">
+        <thead>
+        <tr>
+          <th>채팅창</th>
+        </tr>
+        </thead>
+        <tbody id="greetings">
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<a href="https://prod.hyunn.shop/login/github" class="custom-button"> <img src="ACG_LOGO_WHITE.png" alt="ACG Logo" class="logo"></a>
-<script>
-  const canvas = document.getElementById('MatrixCanvas');
-  const context = canvas.getContext('2d');
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセ테ネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-  const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const nums = '0123456789';
-
-  const alphabet = katakana + latin + nums;
-
-  const fontSize = 16;
-  const columns = canvas.width / fontSize;
-
-  const rainDrops = [];
-
-  for (let x = 0; x < columns; x++) {
-    rainDrops[x] = 1;
-  }
-
-  const draw = () => {
-    context.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    context.fillStyle = '#0F0';
-    context.font = fontSize + 'px monospace';
-
-    for (let i = 0; i < rainDrops.length; i++) {
-      const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-      context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-      if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-        rainDrops[i] = 0;
-      }
-      rainDrops[i]++;
-    }
-  };
-
-  setInterval(draw, 30);
-</script>
 </body>
 </html>

@@ -16,8 +16,9 @@ function connect() {
   var socket = new SockJS('/gs-guide-websocket');
   stompClient = Stomp.over(socket);
 
-  userId = prompt("ID를 입력하세요:");
+  userId = prompt("ID를 입력해주세요.");
 
+  // Check if the user entered a valid ID
   if (!userId) {
     alert("유효한 ID를 입력하세요.");
     return;
@@ -25,7 +26,7 @@ function connect() {
 
   stompClient.connect({}, function (frame) {
     setConnected(true);
-    console.log('연결됨: ' + frame);
+    console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/greetings', function (greeting) {
       showGreeting(JSON.parse(greeting.body).content);
     });
@@ -34,17 +35,19 @@ function connect() {
   $("#userIdDisplay").text("ID: " + userId);
 }
 
+
 function disconnect() {
   if (stompClient !== null) {
     stompClient.disconnect();
   }
   setConnected(false);
-  console.log("연결 해제됨");
+  console.log("Disconnected");
 }
 
 function sendName() {
   var message = $("#name").val().trim();
 
+  // Check if the message is empty
   if (!message) {
     alert("메세지를 입력하세요.");
     return;
@@ -55,8 +58,10 @@ function sendName() {
     'userId': userId
   }));
 
+  // Clear the input field after sending the message
   $("#name").val("");
 }
+
 
 function showGreeting(message) {
   $("#greetings").append("<tr><td>" + message + "</td></tr>");
