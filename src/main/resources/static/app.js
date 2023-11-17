@@ -13,7 +13,8 @@ function setConnected(connected) {
 }
 
 function connect() {
-  var socket = new SockJS('/gs-guide-websocket');
+  var socket = new SockJS('https://prod.hyunn.shop/gs-guide-websocket', null, { transports: ['websocket'] });
+
   stompClient = Stomp.over(socket);
 
   userId = prompt("ID를 입력해주세요.");
@@ -25,16 +26,19 @@ function connect() {
   }
 
   stompClient.connect({}, function (frame) {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/greetings', function (greeting) {
-      showGreeting(JSON.parse(greeting.body).content);
-    });
+    if (frame) {
+      setConnected(true);
+      console.log('Connected: ' + frame);
+      stompClient.subscribe('/topic/greetings', function (greeting) {
+        showGreeting(JSON.parse(greeting.body).content);
+      });
+    } else {
+      alert('연결에 실패했습니다.');
+    }
   });
 
   $("#userIdDisplay").text("ID: " + userId);
 }
-
 
 function disconnect() {
   if (stompClient !== null) {
@@ -61,7 +65,6 @@ function sendName() {
   // Clear the input field after sending the message
   $("#name").val("");
 }
-
 
 function showGreeting(message) {
   $("#greetings").append("<tr><td>" + message + "</td></tr>");
