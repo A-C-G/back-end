@@ -7,7 +7,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-@CrossOrigin(origins = "https://prod.hyunn.shop", allowedHeaders = "*")
 @Configuration
 @EnableWebSocketMessageBroker //웹 소켓 메시지를 다룰 수 있게 허용
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
