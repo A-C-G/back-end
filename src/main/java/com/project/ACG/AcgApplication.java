@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class AcgApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AcgApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(AcgApplication.class, args);
+  }
 }
