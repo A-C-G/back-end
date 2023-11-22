@@ -12,23 +12,24 @@ import org.springframework.web.util.HtmlUtils;
 @Controller
 public class GreetingController {
 
-	@MessageMapping("/hello")
-	@SendTo("/topic/greetings")
-	public Greeting greeting(Message message) throws Exception {
-		Thread.sleep(1000);
+  @MessageMapping("/hello")
+  @SendTo("/topic/greetings")
+  public Greeting greeting(Message message) throws Exception {
+    Thread.sleep(1000);
 
-		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-		Date now = new Date();
-		String currentTime = format.format(now);
+		// 채팅 메세지 형식 구성
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    Date now = new Date();
+    String currentTime = format.format(now);
 
-		String greetingMessage = null;
+    String greetingMessage = null;
 
-		if (message.getUserId() != null && !message.getUserId().isEmpty()) {
-			greetingMessage = "[" + HtmlUtils.htmlEscape(message.getUserId()) + "] ";
-		}
+    if (message.getUserId() != null && !message.getUserId().isEmpty()) {
+      greetingMessage = "[" + HtmlUtils.htmlEscape(message.getUserId()) + "] ";
+    }
 
-		greetingMessage += HtmlUtils.htmlEscape(message.getName() + " - " + currentTime);
+    greetingMessage += HtmlUtils.htmlEscape(message.getName() + " - " + currentTime);
 
-		return new Greeting(greetingMessage);
-	}
+    return new Greeting(greetingMessage);
+  }
 }

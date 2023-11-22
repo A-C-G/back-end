@@ -13,13 +13,13 @@ function setConnected(connected) {
 }
 
 function connect() {
-  var socket = new SockJS('/gs-guide-websocket', null, { transports: ['websocket'] });
+  var socket = new SockJS('/gs-guide-websocket', null,
+      {transports: ['websocket']});
 
   stompClient = Stomp.over(socket);
 
   userId = prompt("ID를 입력해주세요.");
 
-  // Check if the user entered a valid ID
   if (!userId) {
     alert("유효한 ID를 입력하세요.");
     return;
@@ -51,7 +51,6 @@ function disconnect() {
 function sendName() {
   var message = $("#name").val().trim();
 
-  // Check if the message is empty
   if (!message) {
     alert("메세지를 입력하세요.");
     return;
@@ -62,7 +61,6 @@ function sendName() {
     'userId': userId
   }));
 
-  // Clear the input field after sending the message
   $("#name").val("");
 }
 

@@ -30,157 +30,157 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 @RequiredArgsConstructor
 public class GithubApiService {
 
-	@Value("${spring.security.oauth2.client.registration.github.client-id}")
-	private String client_id;
+  @Value("${spring.security.oauth2.client.registration.github.client-id}")
+  private String client_id;
 
-	@Value("${spring.security.oauth2.client.registration.github.client-secret}")
-	private String client_secret;
+  @Value("${spring.security.oauth2.client.registration.github.client-secret}")
+  private String client_secret;
 
-	private final UserJpaRepository userJpaRepository;
+  private final UserJpaRepository userJpaRepository;
 
-	// 엑세스 토큰을 받아오는 로직
-	public void getAccessToken(String code, RedirectAttributes redirectAttributes)
-		throws IOException {
-		URL url = new URL("https://github.com/login/oauth/access_token");
+  // 엑세스 토큰을 받아오는 로직
+  public void getAccessToken(String code, RedirectAttributes redirectAttributes)
+      throws IOException {
+    URL url = new URL("https://github.com/login/oauth/access_token");
 
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setDoInput(true);
-		conn.setDoOutput(true);
-		conn.setRequestMethod("POST");
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("User-Agent",
-			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setDoInput(true);
+    conn.setDoOutput(true);
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Accept", "application/json");
+    conn.setRequestProperty("User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
 
-		try (BufferedWriter bw = new BufferedWriter(
-			new OutputStreamWriter(conn.getOutputStream()))) {
-			bw.write(
-				"client_id=" + client_id + "&client_secret=" + client_secret + "&code=" + code);
-			bw.flush();
-		}
+    try (BufferedWriter bw = new BufferedWriter(
+        new OutputStreamWriter(conn.getOutputStream()))) {
+      bw.write(
+          "client_id=" + client_id + "&client_secret=" + client_secret + "&code=" + code);
+      bw.flush();
+    }
 
-		int responseCode = conn.getResponseCode();
+    int responseCode = conn.getResponseCode();
 
-		String responseData = getResponse(conn, responseCode);
+    String responseData = getResponse(conn, responseCode);
 
-		conn.disconnect();
+    conn.disconnect();
 
-		access(responseData, redirectAttributes);
-	}
+    access(responseData, redirectAttributes);
+  }
 
-	@Transactional
-	// 엑세스 토큰으로 User 객체를 생성하는 로직
-	public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
+  @Transactional
+  // 엑세스 토큰으로 User 객체를 생성하는 로직
+  public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		Map<String, String> map = objectMapper.readValue(response, Map.class);
-		String access_token = map.get("access_token");
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, String> map = objectMapper.readValue(response, Map.class);
+    String access_token = map.get("access_token");
 
-		URL url = new URL("https://api.github.com/user");
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("User-Agent",
-			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
-		conn.setRequestProperty("Authorization", "token " + access_token);
+    URL url = new URL("https://api.github.com/user");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Accept", "application/json");
+    conn.setRequestProperty("User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
+    conn.setRequestProperty("Authorization", "token " + access_token);
 
-		int responseCode = conn.getResponseCode();
+    int responseCode = conn.getResponseCode();
 
-		String results = getResponse(conn, responseCode);
+    String results = getResponse(conn, responseCode);
 
-		String email = getEmail(response, redirectAttributes);
+    String email = getEmail(response, redirectAttributes);
 
-		ObjectNode rootNode = (ObjectNode) objectMapper.readTree(results);
-		rootNode.put("Email", email);
-		String result = objectMapper.writeValueAsString(rootNode);
+    ObjectNode rootNode = (ObjectNode) objectMapper.readTree(results);
+    rootNode.put("Email", email);
+    String result = objectMapper.writeValueAsString(rootNode);
 
-		conn.disconnect();
+    conn.disconnect();
 
-		// 정보를 받아와서 필요한 정보만 파싱 후 User객체 생성
-		try {
-			JsonNode jsonNode = objectMapper.readTree(result);
+    // 정보를 받아와서 필요한 정보만 파싱 후 User객체 생성
+    try {
+      JsonNode jsonNode = objectMapper.readTree(result);
 
-			String login = jsonNode.get("login").asText();
-			String name = jsonNode.get("name").asText();
-			email = jsonNode.get("Email").asText();
+      String login = jsonNode.get("login").asText();
+      String name = jsonNode.get("name").asText();
+      email = jsonNode.get("Email").asText();
 
-			// 이전에 회원가입 전적이 있는 경우
-			if (userJpaRepository.existsUserByUserIdAndUserEmail(login, email)) {
-				Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
-				User existUser = user.get();
+      // 이전에 회원가입 전적이 있는 경우
+      if (userJpaRepository.existsUserByUserIdAndUserEmail(login, email)) {
+        Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(login, email);
+        User existUser = user.get();
 
-				// 휴면 계정인 경우
-				if (existUser.isStatus() == false) {
-					existUser.returnUser(access_token);
-					userJpaRepository.save(existUser);
-				} else {
-					existUser.updateToken(access_token);
-					userJpaRepository.save(existUser);
-				}
-			}
-			// 처음 회원가입하는 경우
-			else {
-				User newUser = User.create(login, name, email, access_token);
-				userJpaRepository.save(newUser);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		redirectAttributes.addFlashAttribute("result", result);
-	}
+        // 휴면 계정인 경우
+        if (!existUser.isStatus()) {
+          existUser.returnUser(access_token);
+          userJpaRepository.save(existUser);
+        } else {
+          existUser.updateToken(access_token);
+          userJpaRepository.save(existUser);
+        }
+      }
+      // 처음 회원가입하는 경우
+      else {
+        User newUser = User.create(login, name, email, access_token);
+        userJpaRepository.save(newUser);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    redirectAttributes.addFlashAttribute("result", result);
+  }
 
-	// 200 요청이 왔을때, 데이터를 문자열화
-	private String getResponse(HttpURLConnection conn, int responseCode) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		if (responseCode == 200) {
-			try (InputStream is = conn.getInputStream();
-				BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					sb.append(line);
-				}
-			}
-		}
-		return sb.toString();
-	}
+  // 200 요청이 왔을때, 데이터를 문자열화
+  private String getResponse(HttpURLConnection conn, int responseCode) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    if (responseCode == 200) {
+      try (InputStream is = conn.getInputStream();
+          BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+        for (String line = br.readLine(); line != null; line = br.readLine()) {
+          sb.append(line);
+        }
+      }
+    }
+    return sb.toString();
+  }
 
-	public void success(HttpServletRequest request, Model model) throws JsonProcessingException {
-		Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
-		String response = null;
-		if (inputFlashMap != null) {
-			response = (String) inputFlashMap.get("result");
-		}
+  public void success(HttpServletRequest request, Model model) throws JsonProcessingException {
+    Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+    String response = null;
+    if (inputFlashMap != null) {
+      response = (String) inputFlashMap.get("result");
+    }
 
-		ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper();
 
-		Map<String, String> result = objectMapper.readValue(response, Map.class);
+    Map<String, String> result = objectMapper.readValue(response, Map.class);
 
-		model.addAttribute("result", result);
-	}
+    model.addAttribute("result", result);
+  }
 
-	public String getEmail(String response, RedirectAttributes redirectAttributes)
-		throws IOException {
+  public String getEmail(String response, RedirectAttributes redirectAttributes)
+      throws IOException {
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		Map<String, String> map = objectMapper.readValue(response, Map.class);
-		String access_token = map.get("access_token");
+    ObjectMapper objectMapper = new ObjectMapper();
+    Map<String, String> map = objectMapper.readValue(response, Map.class);
+    String access_token = map.get("access_token");
 
-		URL url = new URL("https://api.github.com/user/emails");
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("User-Agent",
-			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
-		conn.setRequestProperty("Authorization", "token " + access_token);
+    URL url = new URL("https://api.github.com/user/emails");
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Accept", "application/json");
+    conn.setRequestProperty("User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
+    conn.setRequestProperty("Authorization", "token " + access_token);
 
-		int responseCode = conn.getResponseCode();
+    int responseCode = conn.getResponseCode();
 
-		String result_email = getResponse(conn, responseCode);
+    String result_email = getResponse(conn, responseCode);
 
-		JsonNode jsonNode = objectMapper.readTree(result_email);
+    JsonNode jsonNode = objectMapper.readTree(result_email);
 
-		String email = jsonNode.get(0).get("email").asText();
+    String email = jsonNode.get(0).get("email").asText();
 
-		conn.disconnect();
+    conn.disconnect();
 
-		return email;
-	}
+    return email;
+  }
 }

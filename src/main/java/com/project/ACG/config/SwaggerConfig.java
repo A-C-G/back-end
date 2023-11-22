@@ -16,36 +16,36 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(servers = {
-	@Server(url = "/", description = "Default Server URL")
+    @Server(url = "/", description = "Default Server URL")
 })
 public class SwaggerConfig {
 
-	@Bean
-	public GroupedOpenApi publicApi() {
-		return GroupedOpenApi.builder()
-			.group("v1-definition")
-			.pathsToMatch("/user/**")
-			.build();
-	}
+  @Bean
+  public GroupedOpenApi publicApi() {
+    return GroupedOpenApi.builder()
+        .group("v1-definition")
+        .pathsToMatch("/user/**")
+        .build();
+  }
 
-	@Bean
-	public OpenAPI springShopOpenAPI() {
-		SecurityScheme securityScheme = new SecurityScheme()
-			.type(Type.APIKEY)
-			.description("Api 키")
-			.in(In.HEADER)
-			.name("x-api-key");
+  @Bean
+  public OpenAPI springShopOpenAPI() {
+    SecurityScheme securityScheme = new SecurityScheme()
+        .type(Type.APIKEY)
+        .description("Api 키")
+        .in(In.HEADER)
+        .name("x-api-key");
 
-		SecurityRequirement securityRequirement = new SecurityRequirement()
-			.addList("api key");
+    SecurityRequirement securityRequirement = new SecurityRequirement()
+        .addList("api key");
 
-		return new OpenAPI()
-			.components(new Components().addSecuritySchemes("api key", securityScheme))
-			.addSecurityItem(securityRequirement)
-			.info(new Info().title("ACG project")
-				.contact(new Contact().name("ACG").email("hyuntae9912@naver.com"))
-				.description("ACG API 명세서")
-				.summary("ACG API입니다.")
-				.version("v0.0.1"));
-	}
+    return new OpenAPI()
+        .components(new Components().addSecuritySchemes("api key", securityScheme))
+        .addSecurityItem(securityRequirement)
+        .info(new Info().title("ACG project")
+            .contact(new Contact().name("ACG").email("hyuntae9912@naver.com"))
+            .description("ACG API 명세서")
+            .summary("ACG API입니다.")
+            .version("v0.0.1"));
+  }
 }
