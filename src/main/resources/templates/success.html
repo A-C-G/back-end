@@ -42,27 +42,27 @@
       width: 200px; /* 버튼 폭을 설정 */
     }
 
-    /* "서비스 탈퇴" 버튼을 빨간색으로 바꿉니다 */
+    /* "서비스 탈퇴" 버튼 */
     .withdraw-button {
-      background-color: #FF0000;
+      background-color: #775555;
       color: #fff;
     }
 
-    /* "서비스 이용" 버튼을 파란색으로 바꿉니다 */
+    /* "서비스 이용" 버튼을 빨간색으로 바꿉니다 */
     .setting-button {
-      background-color: #0056b3;
+      background-color: RED;
       color: #fff;
     }
 
-    /* "정보 확인" 버튼을 파란색으로 바꿉니다 */
+    /* "정보 확인" 버튼 */
     .info-button {
-      background-color: #5326c3;
+      background-color: #555555;
       color: #fff;
     }
 
-    /* "정보 확인" 버튼을 갈색으로 바꿉니다 */
+    /* "채팅 입장" 버튼 */
     .chat-button {
-      background-color: #634146;
+      background-color: #335555;
       color: #fff;
     }
 
@@ -79,6 +79,16 @@
     }
   </style>
 </head>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 팝업 창으로 보여주기
+    function showPopup(message) {
+      alert(message);
+    }
+
+    showPopup('첫 이용이라면 꼭 서비스 이용 버튼을 눌러 설정해주세요!');
+  });
+</script>
 <body>
 <div class="button-box">
   <div th:each="key: ${result.keySet()}"
@@ -88,13 +98,12 @@
     </p>
   </div>
   <div class="custom-button-container">
+    <a href="/setting" class="custom-button setting-button">서비스 이용 (필수!)</a>
+    <a href="/withdraw" class="custom-button withdraw-button">서비스 탈퇴</a>
     <a th:href="@{'/user?userId=' + ${result.login} + '&userEmail=' + ${result.Email} + '&userName=' + ${result.name}}"
        class="custom-button info-button">정보 확인</a>
     <a href="/chat" class="custom-button chat-button">채팅방</a>
-    <a href="/setting" class="custom-button setting-button">서비스 이용</a>
-    <a href="/withdraw" class="custom-button withdraw-button">서비스 탈퇴</a>
   </div>
 </div>
-
 </body>
 </html>
