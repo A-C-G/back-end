@@ -76,10 +76,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
           script: |
-            docker stop ACG-api
-            docker rm ACG-api
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
-            docker run -d -p 8080:8080 --name ACG-api ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
+            sudo docker stop ACG-api
+            sudo docker rm ACG-api
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
+            sudo docker run -d -p 8080:8080 --name ACG-api ${{ secrets.DOCKERHUB_USERNAME }}/prod-repo
 
       - name: Remove Github Actions IP from security group
         if: always()
