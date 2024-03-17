@@ -67,8 +67,9 @@ public class JGitService {
       GHCreateRepositoryBuilder builder = github.createRepository(repoName)
           .private_(false) // 필요에 따라 private 리포지토리로 설정
           .description("ACG Repository")
-          .homepage("https://prod.hyunn.shop/description");
+          .homepage("https://prod.hyunn.site/description");
       GHRepository repository = builder.create();
+      repository.setHomepage("https://prod.hyunn.site/description");
 
       String IsSuccess = commitToGitHubRepository(existUser, repoName, "initial commit",
           localRepoPath, localRepoDirectory);
