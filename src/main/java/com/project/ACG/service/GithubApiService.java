@@ -62,6 +62,8 @@ public class GithubApiService {
 
     String responseData = getResponse(conn, responseCode);
 
+    System.out.println("1. 엑세스 토큰 받아오기 : " + responseData);
+
     conn.disconnect();
 
     access(responseData, redirectAttributes);
@@ -170,8 +172,6 @@ public class GithubApiService {
     conn.setRequestProperty("User-Agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
     conn.setRequestProperty("Authorization", "token " + access_token);
-
-    System.out.println("token : " + access_token);
 
     int responseCode = conn.getResponseCode();
 
