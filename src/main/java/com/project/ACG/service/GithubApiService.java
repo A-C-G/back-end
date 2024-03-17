@@ -171,6 +171,8 @@ public class GithubApiService {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36");
     conn.setRequestProperty("Authorization", "token " + access_token);
 
+    System.out.println("token : " + access_token);
+
     int responseCode = conn.getResponseCode();
 
     String result_email = getResponse(conn, responseCode);
