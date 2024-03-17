@@ -69,7 +69,6 @@ public class JGitService {
           .description("ACG Repository")
           .homepage("https://prod.hyunn.site/description");
       GHRepository repository = builder.create();
-      repository.setHomepage("https://prod.hyunn.site/description");
 
       String IsSuccess = commitToGitHubRepository(existUser, repoName, "initial commit",
           localRepoPath, localRepoDirectory);

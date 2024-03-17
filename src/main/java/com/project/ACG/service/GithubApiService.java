@@ -62,8 +62,6 @@ public class GithubApiService {
 
     String responseData = getResponse(conn, responseCode);
 
-    System.out.println("1. 엑세스 토큰 받아오기 : " + responseData);
-
     conn.disconnect();
 
     access(responseData, redirectAttributes);
