@@ -59,7 +59,22 @@
 │                   ├── AutoCommitService
 │                   ├── JGitService
 │                   └── UserService
-└── test
+└── resources
+    ├── config 
+    │   └── application-local.yml
+    ├── static
+    │   ├── ACG_LOGO_WHITE.png
+    │   ├── app.js
+    │   └── index.html
+    ├── templates
+    │   ├── ACG_LOGO.png
+    │   ├── chat.html
+    │   ├── description.html
+    │   ├── info.html
+    │   ├── setting.html
+    │   ├── success.html
+    │   └── withdraw.html
+    └── application.yml
 ```
 
 # 📝 Service
@@ -84,7 +99,7 @@
 sample이라는 커밋 날짜 데이터를 추가하며 10개의 파일이 넘어갈 경우, 삭제하여 너무 많은 파일이 남지 않도록 합니다.<br>
 위와 같은 유의사항 및 안내사항은 생성된 저장소의 우측 링크를 통해서 자세히 확인하실 수 있습니다.<br>
 
-<img src = "https://velog.velcdn.com/images/hyuntae99/post/79eb73df-5d04-4863-89da-6ce78381606a/image.gif">
+<img src = "https://velog.velcdn.com/images/hyuntae99/post/e1b0371f-4e90-43df-8848-8f3dacb2577a/image.gif">
 <br>
 
 ## 4. 유저 탈퇴
@@ -92,7 +107,7 @@ sample이라는 커밋 날짜 데이터를 추가하며 10개의 파일이 넘�
 이때, 이미 생성된 저장소는 사라지지 않으며 이 저장소를 삭제할 경우 잔디가 삭제됩니다.<br>
 해당 유의사항은 생성된 저장소 우측 url에 접속하면 확인할 수 있습니다.<br>
 
-<img src = "https://velog.velcdn.com/images/hyuntae99/post/e1b0371f-4e90-43df-8848-8f3dacb2577a/image.gif">
+<img src = "https://velog.velcdn.com/images/hyuntae99/post/79eb73df-5d04-4863-89da-6ce78381606a/image.gif">
 <br>
 
 ## 5. 익명 단체 채팅방
@@ -103,4 +118,4 @@ sample이라는 커밋 날짜 데이터를 추가하며 10개의 파일이 넘�
 <br>
 
 ## 🙋🏻‍♀️ 더 많은 자료는?
-### [PPT 발표 자료](https://docs.google.com/presentation/d/1SwTtjPmRu_-K8BIRhXG298PkwFupW2K0/edit?usp=sharing&ouid=103204687067264269924&rtpof=true&sd=true)를 참고해주세요!
+### [PPT 발표 자료](https://docs.google.com/presentation/d/1SwTtjPmRu_-K8BIRhXG298PkwFupW2K0/edit?usp=sharing&ouid=103204687067264269924&rtpof=true&sd=true)를 참고해주세요! 
