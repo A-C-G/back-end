@@ -38,7 +38,9 @@ public class GithubApiService {
 
   private final UserJpaRepository userJpaRepository;
 
-  // 엑세스 토큰을 받아오는 로직
+  /**
+   * 엑세스 토큰을 받아오는 로직
+   */
   public void getAccessToken(String code, RedirectAttributes redirectAttributes)
       throws IOException {
     URL url = new URL("https://github.com/login/oauth/access_token");
@@ -67,8 +69,10 @@ public class GithubApiService {
     access(responseData, redirectAttributes);
   }
 
+  /**
+   * 엑세스 토큰으로 User 객체를 생성하는 로직
+   */
   @Transactional
-  // 엑세스 토큰으로 User 객체를 생성하는 로직
   public void access(String response, RedirectAttributes redirectAttributes) throws IOException {
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -84,9 +88,7 @@ public class GithubApiService {
     conn.setRequestProperty("Authorization", "token " + access_token);
 
     int responseCode = conn.getResponseCode();
-
     String results = getResponse(conn, responseCode);
-
     String email = getEmail(response, redirectAttributes);
 
     ObjectNode rootNode = (ObjectNode) objectMapper.readTree(results);
@@ -128,7 +130,9 @@ public class GithubApiService {
     redirectAttributes.addFlashAttribute("result", result);
   }
 
-  // 200 요청이 왔을때, 데이터를 문자열화
+  /**
+   * 200 요청이 왔을때, 데이터를 문자열화
+   */
   private String getResponse(HttpURLConnection conn, int responseCode) throws IOException {
     StringBuilder sb = new StringBuilder();
     if (responseCode == 200) {
@@ -142,20 +146,27 @@ public class GithubApiService {
     return sb.toString();
   }
 
+  /**
+   * 결과 값을 model에 상속시킨다.
+   */
   public void success(HttpServletRequest request, Model model) throws JsonProcessingException {
+    // Flash attribute에서 결과를 가져옴
     Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
     String response = null;
     if (inputFlashMap != null) {
       response = (String) inputFlashMap.get("result");
     }
 
+    // JSON 문자열을 객체로 매핑하기 위한 ObjectMapper 생성
     ObjectMapper objectMapper = new ObjectMapper();
-
     Map<String, String> result = objectMapper.readValue(response, Map.class);
-
+    // 결과를 Model에 추가하여 View로 전달
     model.addAttribute("result", result);
   }
 
+  /**
+   * 이메일을 받아오는 로직 (이메일의 경우, 중요 정보로 따로 요청해야함)
+   */
   public String getEmail(String response, RedirectAttributes redirectAttributes)
       throws IOException {
 
@@ -172,11 +183,8 @@ public class GithubApiService {
     conn.setRequestProperty("Authorization", "token " + access_token);
 
     int responseCode = conn.getResponseCode();
-
     String result_email = getResponse(conn, responseCode);
-
     JsonNode jsonNode = objectMapper.readTree(result_email);
-
     String email = jsonNode.get(0).get("email").asText();
 
     conn.disconnect();

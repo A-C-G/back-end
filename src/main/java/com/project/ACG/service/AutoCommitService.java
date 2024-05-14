@@ -57,6 +57,9 @@ public class AutoCommitService {
     }
   }
 
+  /**
+   * 커밋하기
+   */
   @Transactional
   public void commitToGitHubRepository(User user) throws JsonProcessingException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
@@ -116,6 +119,9 @@ public class AutoCommitService {
     }
 	}
 
+  /**
+   * 파일 삭제
+   */
   @Transactional
   public void commitWithFileCleanup(User user) throws IOException {
     String localRepoPath = "/var/" + user.getUserId() + "/samples";
