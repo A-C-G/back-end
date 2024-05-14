@@ -28,6 +28,9 @@ public class UserService {
 
   private final UserJpaRepository userJpaRepository;
 
+  /**
+   * 유저 리스트를 CSV형식으로 반환
+   */
   public ResponseEntity<byte[]> getUserListToCSV(String token) {
 
     // token이 없거나 token이 일치하지 않을 경우
@@ -67,24 +70,32 @@ public class UserService {
     return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
   }
 
+  /**
+   * 유저 정보 반환
+   */
   @Transactional
   public UserDto userInfo(String userId, String userEmail, String userName) {
+    // 유저 탐색
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
 
+    // 유저가 존재하지 않는 경우
     if (!userJpaRepository.existsUserByUserIdAndUserEmail(userId, userEmail)) {
       return UserDto.create(false, null, null);
     }
+
+    // 유저 이름 업데이트
     User targetUser = user.get();
     targetUser.updateName(userName);
     userJpaRepository.save(targetUser);
 
+    // 유저 업데이트 시간
     boolean status = targetUser.isStatus();
-
 		String updateTime = null;
     if (targetUser.getUpdateTime() != null) {
       updateTime = targetUser.getUpdateTime();
     }
 
+    // 유저 저장소 이름
     String repoName = null;
     if (targetUser.getUserRepo() != null) {
       repoName = targetUser.getUserRepo();
@@ -93,6 +104,9 @@ public class UserService {
     return UserDto.create(status, updateTime, repoName);
   }
 
+  /**
+   * 유저 정보 업데이트
+   */
   @Transactional
   public ResponseEntity<UserUpdateResponse> updateUser(UserUpdateRequest userUpdateRequest,
       String token) {
@@ -104,14 +118,17 @@ public class UserService {
           HttpStatus.UNAUTHORIZED);
     }
 
+    // 유저 관련 정보
     Long id = userUpdateRequest.getId().longValue();
     String userId = userUpdateRequest.getUserId();
     String userEmail = userUpdateRequest.getUserEmail();
     String updateTime = userUpdateRequest.getUpdateTime();
     String error = userUpdateRequest.getError();
 
+    // 유저 탐색
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
 
+    // 유저가 존재하지 않는 경우
     if (!user.isPresent()) {
       return new ResponseEntity<>(
           UserUpdateResponse.create(id, userId, userEmail, "존재하지 않는 유저입니다."),
@@ -120,6 +137,7 @@ public class UserService {
 
     User existUser = user.get();
 
+    // error가 없다면 업데이트
     if (error == null) {
       existUser.updateAt(updateTime);
     } else {
@@ -131,12 +149,13 @@ public class UserService {
         endIndex = error.length();
       }
 
+      // 유저 업데이트 시간 파싱
       String parsedString = error.substring(startIndex, endIndex);
       parsedString = parsedString.replace("_", " ");
 
       existUser.updateAt(parsedString.trim());
     }
-    userJpaRepository.save(existUser);
+    userJpaRepository.save(existUser); // 저장
     return new ResponseEntity<>(
         new UserUpdateResponse(id, userId, userEmail, "updateTime : " + existUser.getUpdateTime()),
         HttpStatus.OK);

@@ -31,8 +31,12 @@ public class JGitService {
 
   private final UserJpaRepository userJpaRepository;
 
+  /**
+   * Repository를 생성하는 로직
+   */
   public String createRepo(String userId, String userEmail, String repoName)
       throws JsonProcessingException {
+    // 유저 검색
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     User existUser = user.get();
     String accessToken = existUser.getUserToken();
@@ -40,10 +44,12 @@ public class JGitService {
     String localRepoPath = "/var/" + existUser.getUserId() + "/samples";
     File localRepoDirectory = new File(localRepoPath);
 
+    // 로컬 디렉토리가 있는 경우
     if (localRepoDirectory.exists()) {
       return "이미 서비스를 이용중 입니다.\n한 계정당 하나의 서비스만 이용 가능합니다.";
     }
 
+    // 이미 사용중인 저장소가 있는 경우
     if (existUser.getUserRepo() != null) {
       String existRepoName = userId + "/" + existUser.getUserRepo();
       try {
@@ -63,13 +69,14 @@ public class JGitService {
     }
 
     try {
-      GitHub github = GitHub.connectUsingOAuth(accessToken);
-      GHCreateRepositoryBuilder builder = github.createRepository(repoName)
+      GitHub github = GitHub.connectUsingOAuth(accessToken); // 깃허브에 토큰을 통해 접근
+      GHCreateRepositoryBuilder builder = github.createRepository(repoName) // 저장소 생성
           .private_(false) // 필요에 따라 private 리포지토리로 설정
-          .description("ACG Repository")
-          .homepage("https://prod.hyunn.site/description");
+          .description("ACG Repository") // 설명
+          .homepage("https://prod.hyunn.site/description"); // URL 설정
       GHRepository repository = builder.create();
 
+      // 깃허브 커밋 내용 작성
       String IsSuccess = commitToGitHubRepository(existUser, repoName, "initial commit",
           localRepoPath, localRepoDirectory);
 
@@ -83,6 +90,7 @@ public class JGitService {
     } catch (IOException e) {
       e.printStackTrace();
 
+      // 오류 처리
       String apiResponse = e.getMessage();
       ObjectMapper objectMapper = new ObjectMapper();
       JsonNode jsonNode = objectMapper.readTree(apiResponse);
@@ -107,6 +115,9 @@ public class JGitService {
     }
   }
 
+  /**
+   * 초기 저장소 생성 후 커밋하는 로직
+   */
   public String commitToGitHubRepository(User user, String repoName, String commitMessage,
       String localRepoPath, File localRepoDirectory)
       throws IOException {
@@ -121,6 +132,7 @@ public class JGitService {
       CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(
           userId, userToken);
 
+      // 원격 저장소를 로컬로 복사한다.
       git = Git.cloneRepository()
           .setCredentialsProvider(credentialsProvider)
           .setURI("https://github.com/" + user.getUserId() + "/" + repoName + ".git")
@@ -163,20 +175,24 @@ public class JGitService {
     }
 	}
 
+  /**
+   * 유저 삭제
+   */
   @Transactional
   public String deleteUser(String userId, String userEmail) {
-
+    // 유저 탐색
     Optional<User> user = userJpaRepository.findUserByUserIdAndUserEmail(userId, userEmail);
     if (!user.isPresent()) {
       return "존재하지 않는 유저입니다.";
     }
 
     User targetUser = user.get();
+    // 유저가 존재하는 경우 삭제
     if (targetUser.isStatus()) {
       targetUser.deleteUser();
       userJpaRepository.save(targetUser);
 
-      // 유저 삭제 후 해당 디렉토리 및 파일 삭제
+      // 유저 삭제 후 해당 로컬 디렉토리 및 파일 삭제
       String directoryPath = "/var/" + userId;
       File directory = new File(directoryPath);
 
@@ -189,6 +205,9 @@ public class JGitService {
     }
   }
 
+  /**
+   * 디렉토리를 삭제하는 로직
+   */
   private void deleteDirectory(File directory) {
     if (directory.isDirectory()) {
       File[] files = directory.listFiles();
